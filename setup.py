@@ -8,7 +8,6 @@ setup(
     install_requires=[
         'numpy>=1.19.5',
         'scikit-learn>=1.1.2',
-        
         'pandas>=1.4.3',
         'anndata>=0.8.0',
         'h5py>=3.6.0',
@@ -18,8 +17,8 @@ setup(
         'matplotlib>=3.5.0',
         'setuptools>=59.4.0',
         'tqdm>=4.62.3',
-        # 'keras==2.7.0',
-        # 'tensorflow>=2.7.0',
+        'keras==2.7.0',
+        'tensorflow>=2.7.0',
     ],
     ext_modules=cythonize("dissect/PropsSimulator/*pyx"),
     keywords=[
@@ -34,7 +33,7 @@ setup(
     python_requires=">=3.8.6",
     author="Robin Khatri",
     author_email="robin.khatri@zmnh.uni-hamburg.de",
-    url="https://github.com/robinredX/DISSECT",
+    url="https://github.com/imsb-uke/DISSECT",
     
     license="MIT License",
 )
