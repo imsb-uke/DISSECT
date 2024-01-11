@@ -1,1 +1,1 @@
-from dissect.PropsSimulator.bulkSimulator import simulate
+from dissect.PropsSimulator.simulator import simulate
