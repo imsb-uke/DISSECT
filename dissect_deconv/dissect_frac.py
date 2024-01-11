@@ -3,11 +3,11 @@ import sys
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from dissect.utils.network_fn import network1 as network
-from dissect.utils.network_fn import loss
+from dissect_deconv.utils.network_fn import network1 as network
+from dissect_deconv.utils.network_fn import loss
 from tqdm import tqdm
 import random
-from dissect.utils.utils_fn import normalize_per_batch, reproducibility, ccc_fn
+from dissect_deconv.utils.utils_fn import normalize_per_batch, reproducibility, ccc_fn
 from sklearn.metrics import mean_squared_error
 
 

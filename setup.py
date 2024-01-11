@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 from Cython.Build import cythonize
 
 setup(
-    name='dissect',
+    name='dissect_deconv',
     version='0.1',
     packages=find_packages(),
     install_requires=[
@@ -17,10 +17,10 @@ setup(
         'matplotlib>=3.5.0',
         'setuptools>=59.4.0',
         'tqdm>=4.62.3',
-        'keras==2.7.0',
-        'tensorflow>=2.7.0',
+#        'keras==2.7.0',
+#        'tensorflow>=2.7.0',
     ],
-    ext_modules=cythonize("dissect/PropsSimulator/*pyx"),
+    ext_modules=cythonize("dissect_deconv/PropsSimulator/*pyx"),
     keywords=[
         "bioinformatics",
         "deep learning",
