@@ -129,7 +129,19 @@ def run_dissect_expr(config):
 
     tmp_ls = []
     print("Preparing training datasets.")
-    for i in tqdm(range(X_celltypes[list(X_celltypes.keys())[0]].shape[0])):
+    # for i in tqdm(range(X_celltypes[list(X_celltypes.keys())[0]].shape[0])):
+    #     tmp_ls.append(
+    #         np.concatenate(
+    #             [
+    #                 X_celltypes[celltype][i, :].reshape(
+    #                     (1, X_celltypes[celltype].shape[1])
+    #                 )
+    #                 for celltype in X_celltypes.keys()
+    #             ],
+    #             axis=0,
+    #         )
+    #     )
+    for i in range(X_celltypes[list(X_celltypes.keys())[0]].shape[0]):
         tmp_ls.append(
             np.concatenate(
                 [
@@ -429,6 +441,7 @@ def run_dissect_expr(config):
 
     adata_est.layers["scaled_counts"] = sc.pp.scale(adata_est, copy=True, max_value=10).X
     savename = os.path.join(config["experiment_folder"], "est_expression.h5ad")
+    adata_est.write(savename)
     print(
         f"Estimated gene expression per cell type for all samples is saved at {savename}, corresponding samples are in sample attribute of the anndata.obs."
     )

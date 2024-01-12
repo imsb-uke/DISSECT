@@ -101,8 +101,8 @@ def run_dissect_frac(config):
                     model(X_real),
                     model(X_mix),
                 )
-                print("Network architecture -")
-                print(model.summary())
+                # print("Network architecture -")
+                # print(model.summary())
 
             with tf.GradientTape() as tape:
                 if config["deconv_params"]["mix"] == "rrm":
@@ -239,6 +239,25 @@ def run_dissect_frac(config):
             print("Starting training model {}".format(i))
         j += 1
 
+    # print("ensembling")
+    experiment_path = os.path.join(config["experiment_folder"])
+    
+    i = 0
+    for i in range(len(config["models"])):
+        df_curr = pd.read_table(
+            os.path.join(
+                config["experiment_folder"], "dissect_fractions_{}.txt".format(i)
+            ),
+            index_col=0,
+        )
+        if i == 0:
+            df_ens = df_curr
+        else:
+            df_ens = df_ens + df_curr
+    df_ens = df_ens / len(config["models"])
+    savepath = os.path.join(config["experiment_folder"], "dissect_fractions.txt")
+    print("Final predictions are saved to {}".format(savepath))
+    df_ens.to_csv(savepath, sep="\t")
 
 if __name__ == "__main__":
     from configs.main_config import config

@@ -601,8 +601,8 @@ def simulate(config):
     sim.generate_props()
     batch_col = sim.config["simulation_params"]["batch_col"]
     columns = sim.sc_adata.obs.columns
-    print(batch_col)
-    print(columns)
+    # print(batch_col)
+    # print(columns)
     if batch_col in columns:
         sim.batches = np.array(sim.sc_adata.obs[sim.config["simulation_params"]["batch_col"]].unique())
         if len(sim.batches) > 1:
