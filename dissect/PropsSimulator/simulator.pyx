@@ -119,21 +119,6 @@ class Simulate(object):
             os.path.join(self.simulation_folder, "boxplot_ncells_complete.pdf")
         )
 
-        fig = plt.figure()
-        ax = plt.boxplot(self.props_sparse, labels=self.celltypes)  #
-        plt.ylabel("Proportion")
-        plt.title("Proportions of cell-types in generated samples")
-        plt.savefig(
-            os.path.join(self.simulation_folder, "boxplot_props_sparse.pdf")
-        )
-        fig = plt.figure()
-        ax = plt.boxplot(self.cells_sparse, labels=self.celltypes)
-        plt.ylabel("Count")
-        plt.title("Counts of cell-types in generated samples")
-        plt.savefig(
-            os.path.join(self.simulation_folder, "boxplot_ncells_sparse.pdf")
-        )
-
         self.props = np.concatenate([self.props_complete, self.props_sparse], axis=0)
         self.cells = np.concatenate([self.cells_complete, self.cells_sparse], axis=0)
 
