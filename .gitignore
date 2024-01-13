@@ -1,5 +1,9 @@
 **/*/tmp/
 **/*/tmp.ipynb
+**/*/tutorial_bulkRNAseq
+**/*/tutorial_spatial
+**/*/tutorial_tldr
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 **/*/__pycache__/

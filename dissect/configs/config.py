@@ -1,5 +1,5 @@
 config = {
-    "experiment_folder": "/home/user/expriment",  # Path to save outputs. Default: expriment
+    "experiment_folder": "/home/user/experiment",  # Path to save outputs. Default: expriment
 
     "simulation_params": { 
         "scdata": "/home/user/experiment/data.h5ad",  # Path to sc/snRNA-seq data, should be anndata
