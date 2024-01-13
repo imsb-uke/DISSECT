@@ -36,8 +36,8 @@ cd DISSECT/tutorials
 ```
 
 ## Tutorials
-Interactive tutorials are available as part of this repository at [Tutorials](https://github.com/imsb-uke/DISSECT/tree/main/tutorials)
+Interactive tutorials including required data are available as part of this repository at [Tutorials](https://github.com/imsb-uke/DISSECT/tree/main/tutorials).
 1. expanded_tutorial.ipynb: Step by step deconvolution of a bulk RNAseq data
 2. minimal_tutorial.ipynb: Complete deconvolution from a single configuration file using minimal steps of code
 
-If you encounter any problems, please open an issue.
+To get answers quickly for a problem or feature request, please open an issue.
