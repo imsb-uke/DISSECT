@@ -17,8 +17,8 @@ setup(
         'matplotlib>=3.5.0',
         'setuptools>=59.4.0',
         'tqdm>=4.62.3',
-#        'keras==2.7.0',
-#        'tensorflow>=2.7.0',
+        'keras==2.7.0',
+        'tensorflow>=2.7.0',
     ],
     ext_modules=cythonize("dissect/PropsSimulator/*pyx"),
     keywords=[
