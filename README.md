@@ -14,8 +14,6 @@ These instructions will get you a copy of the project up and running on your loc
 ```
 ## Installation
 
-dissect2
-
 # Create and activate virtual environment
 conda create -y -n dissect python=3.8
 conda activate dissect
