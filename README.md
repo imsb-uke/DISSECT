@@ -34,4 +34,10 @@ conda install -y jupyter
 cd DISSECT/tutorials
 
 ```
+
+## Tutorials
+Interactive tutorials are available as part of this repository at
+1. [expanded_tutorial.ipynb](tutorials/https://github.com/imsb-uke/DISSECT/blob/main/tutorials/expanded_tutorial.ipynb): Step by step deconvolution of a bulk RNAseq data
+2. [minimal_tutorial.ipynb](tutorials/https://github.com/imsb-uke/DISSECT/blob/main/tutorials/minimal_tutorial.ipynb): Complete deconvolution from a single configuration file using minimal steps of code
+
 If you encounter any problems, please open an issue.
