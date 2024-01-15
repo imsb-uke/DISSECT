@@ -6,14 +6,46 @@
     <title>DISSECT v0.1.1</title>
 </head>
 <body>
-    <h1>DISSECT v0.1.1</h1>
-    <nav>
+    <h1 id="dissect">DISSECT v0.1.1</h1>
+<p>DISSECT is a deep semi-supervised learning framework that performs complete deconvolution of gene expression mixtures such as bulk RNAseq, proteomics and spatial transcriptomics</p>
+<h2 id="getting-started">Getting Started</h2>
+<p>These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. Folder tutorials include notebooks to get started.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>conda &gt;= v22 through <a href="https://docs.anaconda.com/free/anaconda/install/index.html">Anaconda</a> or <a href="https://docs.conda.io/projects/miniconda/en/latest/miniconda-install.html">miniconda</a>.</p>
+<h2 id="installing">Installing</h2>
+<pre><code>## Installation
+
+# Create and activate virtual environment
+conda create -y -n dissect python=3.8
+conda activate dissect
+
+# Clone DISSECT
+git clone https://github.com/imsb-uke/DISSECT
+
+# Install dependencies and DISSECT
+
+pip install -r DISSECT/requirements.txt --use-deprecated=legacy-resolver
+pip install DISSECT/.
+
+# Install jupyter lab
+conda install -y jupyter
+
+## Tutorials to get started
+# Go to tutorials directory within DISSECT
+cd DISSECT/tutorials
+</code></pre>
+<h2 id="tutorials">Tutorials</h2>
+<p>Interactive tutorials including required data are available as part of this repository at <a href="https://github.com/imsb-uke/DISSECT/tree/main/tutorials">Tutorials</a>.</p>
+ <nav>
         <ul>
-            <li><a href="installation.md">Installation</a></li>
             <!--- <li><a href="expanded_tutorial.html">Step by step tutorial</a></li> -->
             <li><a href="minimal_tutorial.html">Minimal tutorial</a></li>
         </ul>
     </nav>
+<p>To get answers quickly for a problem or feature request, please open an issue.</p>
+
+   
 </body>
 </html>
+
 
