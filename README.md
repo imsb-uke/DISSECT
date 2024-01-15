@@ -8,9 +8,8 @@ These instructions will get you a copy of the project up and running on your loc
 
 ## Prerequisites
 
-[Anaconda](https://docs.anaconda.com/free/anaconda/install/index.html) or [miniconda](https://docs.conda.io/projects/miniconda/en/latest/miniconda-install.html)
+conda >= v22 through [Anaconda](https://docs.anaconda.com/free/anaconda/install/index.html) or [miniconda](https://docs.conda.io/projects/miniconda/en/latest/miniconda-install.html).
 
-The code was tested on conda v22.11.1 and is compatible with conda >= v22.
 
 ## Installing
 ```
@@ -39,7 +38,7 @@ cd DISSECT/tutorials
 
 ## Tutorials
 Interactive tutorials including required data are available as part of this repository at [Tutorials](https://github.com/imsb-uke/DISSECT/tree/main/tutorials).
-1. expanded_tutorial.ipynb: Step by step deconvolution of a bulk RNAseq data
+1. expanded_tutorial.ipynb: Step by step deconvolution
 2. minimal_tutorial.ipynb: Complete deconvolution from a single configuration file using minimal steps of code
 
 To get answers quickly for a problem or feature request, please open an issue.
