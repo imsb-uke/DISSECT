@@ -10,7 +10,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 [Anaconda](https://docs.anaconda.com/free/anaconda/install/index.html) or [miniconda](https://docs.conda.io/projects/miniconda/en/latest/miniconda-install.html)
 
-The code was tested on conda v22.11.1 and is compatible with conda >= v22 
+The code was tested on conda v22.11.1 and is compatible with conda >= v22.
 
 ## Installing
 ```
