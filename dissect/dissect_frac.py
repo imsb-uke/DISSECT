@@ -9,9 +9,11 @@ from tqdm import tqdm
 import random
 from dissect.utils.utils_fn import normalize_per_batch, reproducibility, ccc_fn
 from sklearn.metrics import mean_squared_error
-
+import logging
 
 def run_dissect_frac(config):
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+    logging.getLogger('tensorflow').setLevel(logging.FATAL)
     dataset_path = os.path.join(config["experiment_folder"], "datasets")
     if not os.path.exists(dataset_path):
         sys.exit(
@@ -216,7 +218,7 @@ def run_dissect_frac(config):
 
         model_p = tf.keras.models.load_model(model_path)
 
-        print("Running deconvolution")
+        # print("Running deconvolution")
         y_hat = model_p.predict(normalize_per_batch(X_real_test, n_features))
         df_y_hat = pd.DataFrame(y_hat, columns=celltypes)
         df_y_hat.index = sample_names
@@ -234,7 +236,7 @@ def run_dissect_frac(config):
         # df_metrics.to_csv(os.path.join(config["experiment_folder"], "per_step_metrics_{}.txt".format(j)),
         #                sep="\t")
 
-        print("Estimated proportions are saved at {}.".format(results_path))
+        # print("Estimated proportions are saved at {}.".format(results_path))
         if i < 5:
             print("Starting training model {}".format(i))
         j += 1
@@ -243,7 +245,7 @@ def run_dissect_frac(config):
     experiment_path = os.path.join(config["experiment_folder"])
     
     i = 0
-    for i in range(len(config["models"])):
+    for i in range(len(config["deconv_params"]["models"])):
         df_curr = pd.read_table(
             os.path.join(
                 config["experiment_folder"], "dissect_fractions_{}.txt".format(i)
@@ -254,9 +256,9 @@ def run_dissect_frac(config):
             df_ens = df_curr
         else:
             df_ens = df_ens + df_curr
-    df_ens = df_ens / len(config["models"])
+    df_ens = df_ens / len(config["deconv_params"]["models"])
     savepath = os.path.join(config["experiment_folder"], "dissect_fractions.txt")
-    print("Final predictions are saved to {}".format(savepath))
+    print("Predictions are saved to {}".format(savepath))
     df_ens.to_csv(savepath, sep="\t")
 
 if __name__ == "__main__":

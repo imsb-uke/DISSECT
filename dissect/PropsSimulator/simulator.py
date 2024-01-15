@@ -30,7 +30,7 @@ class Simulate(object):
         if not self.config["simulation_params"]["n_samples"]:
             self.config["simulation_params"]["n_samples"] = 1000 * self.n_celltypes
         if not self.config["simulation_params"]["cells_per_sample"]:
-            self.config["simulation_params"]["cells_per_sample"] = 1000
+            self.config["simulation_params"]["cells_per_sample"] = 100
         self.n_sparse = int(self.config["simulation_params"]["n_samples"] * self.config["simulation_params"]["prop_sparse"])
         self.n_complete = self.config["simulation_params"]["n_samples"] - self.n_sparse
 
@@ -111,13 +111,13 @@ class Simulate(object):
         plt.savefig(
             os.path.join(self.simulation_folder, "boxplot_props_complete.pdf")
         )
-        fig = plt.figure()
-        ax = plt.boxplot(self.cells_complete, labels=self.celltypes)
-        plt.ylabel("Count")
-        plt.title("Counts of cell-types in generated samples")
-        plt.savefig(
-            os.path.join(self.simulation_folder, "boxplot_ncells_complete.pdf")
-        )
+        # fig = plt.figure()
+        # ax = plt.boxplot(self.cells_complete, labels=self.celltypes)
+        # plt.ylabel("Count")
+        # plt.title("Counts of cell-types in generated samples")
+        # plt.savefig(
+        #     os.path.join(self.simulation_folder, "boxplot_ncells_complete.pdf")
+        # )
 
         # fig = plt.figure()
         # ax = plt.boxplot(self.props_sparse, labels=self.celltypes)  #
@@ -610,7 +610,7 @@ def simulate(config):
         else:
             sim.simulate(save=True)
     else:
-        print("Number of batches in single-cell data is 1.")
+        print("Number of batches in single-cell data is 1. If this is incorrect, please specify name of the batch column as in the single-cell data object (.obs)")
         sim.simulate(save=True)
     sim.config["simulation_params"]["simulation_folder"] = os.path.join(sim.config["experiment_folder"], "simulation")
     sim.config["simulation_params"]["concentration"] = list(sim.config["simulation_params"]["concentration"])

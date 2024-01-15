@@ -3,6 +3,7 @@
 **/*/tutorial_bulkRNAseq
 **/*/tutorial_spatial
 **/*/tutorial_tldr
+**/*/experiment*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

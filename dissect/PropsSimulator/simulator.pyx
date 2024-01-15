@@ -595,7 +595,7 @@ def simulate(config):
         else:
             sim.simulate(save=True)
     else:
-        print("Number of batches in single-cell data is 1.")
+        print("Number of batches in single-cell data is 1. If this is incorrect, please specify name of the batch column as in the single-cell data object (.obs)")
         sim.simulate(save=True)
     sim.config["simulation_params"]["simulation_folder"] = os.path.join(sim.config["experiment_folder"], "simulation")
     sim.config["simulation_params"]["concentration"] = list(sim.config["simulation_params"]["concentration"])

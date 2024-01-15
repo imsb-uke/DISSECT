@@ -33,6 +33,7 @@ warnings.filterwarnings("ignore")
 
 
 def run_dissect_expr(config):
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
     test_format = config["deconv_params"]["test_dataset_format"]
     real_path = config["deconv_params"]["test_dataset"]
 
