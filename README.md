@@ -63,4 +63,4 @@ Interactive tutorials including required data are available as part of this repo
 1. tutorial.ipynb: Step by step deconvolution for bulk
 2. tutorial_spatial.ipynb: Step by step deconvolution of spatial transcriptomics data (10x Visium)
 
-To get answers quickly for a problem or feature request, please open an issue.
+To get answers quickly for a problem or feature request, please open an [issue](https://github.com/imsb-uke/DISSECT/issues).
