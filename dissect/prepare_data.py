@@ -39,6 +39,8 @@ def dataset(config):
         X_real = pd.read_table(config["deconv_params"]["test_dataset"], index_col=0)
     elif config["deconv_params"]["test_dataset_format"] == "h5ad":
         X_real = sc.read(config["deconv_params"]["test_dataset"])
+        if "parse" in str(type(X_real.X)):
+            X_real.X = np.array(X_real.X.todense())
         X_real = pd.DataFrame(
             X_real.X, index=X_real.obs.index.tolist(), columns=X_real.var_names.tolist()
         ).T
@@ -127,9 +129,11 @@ def dataset(config):
     # Simulated if not simulated
     if config["deconv_params"]["simulated"]:
         X_sim = X_sc
+        
     else:
         X_sim = simulate(X_sc, config["deconv_params"]["simulation_params"])
-
+    if "parse" in str(type(X_sim.X)):
+        X_sim = np.array(X_sim.X.todense())
     # Normalization
     if config["deconv_params"]["normalize_simulated"] == "cpm":
         sc.pp.normalize_total(X_sim, target_sum=1e6)

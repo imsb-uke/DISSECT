@@ -12,11 +12,11 @@ conda >= v22 through [Anaconda](https://docs.anaconda.com/free/anaconda/install/
 
 
 ## Installing
-```python
+```shell
 ## Installation
 
 # Create and activate virtual environment. This is recommended to avoid conflict in dependencies.
-conda create -y -n dissect python=3.8
+conda create -y -n dissect python=3.9
 conda activate dissect
 
 # Clone DISSECT
@@ -38,10 +38,29 @@ cd DISSECT/tutorials
 jupyter notebook
 
 ```
+## GPU usage
+By default, tensorflow-gpu which is installed while installed DISSECT works as long as appropriate CUDA driver is installed. DISSECT uses tensorflow-gpu version 2.7.0 with CUDA 11.2 and cuDNN 8.1. The available devices to tensorflow can be checked as below.
+
+```python
+import tensorflow as tf
+gpus = tf.config.list_physical_devices("GPU")
+print(gpus)
+
+```
+This will output a list of the available GPU devices as the output below where we have 1 GPU available. 
+```
+[PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')] 
+```
+In case there are multiple GPUs available, a particular GPU can be set by,
+
+```python
+gpu_number = 0 # Using only the first GPU
+tf.config.experimental.set_visible_devices(gpus[gpu_number], 'GPU')
+```
 
 ## Tutorials
 Interactive tutorials including required data are available as part of this repository at [Tutorials](https://github.com/imsb-uke/DISSECT/tree/main/tutorials).
-1. expanded_tutorial.ipynb: Step by step deconvolution
-2. minimal_tutorial.ipynb: Complete deconvolution from a single configuration file using minimal steps of code
+1. expanded_tutorial.ipynb: Step by step deconvolution for bulk
+2. expanded_tutorial_spatial.ipynb: Step by step deconvolution of spatial transcriptomics data (10x Visium)
 
 To get answers quickly for a problem or feature request, please open an issue.

@@ -108,15 +108,10 @@ class Simulate(object):
         ax = plt.boxplot(self.props_complete, labels=self.celltypes)  #
         plt.ylabel("Proportion")
         plt.title("Proportions of cell-types in generated samples")
+        if self.n_celltypes>10:
+            plt.xticks(rotation=45, ha="right")
         plt.savefig(
             os.path.join(self.simulation_folder, "boxplot_props_complete.pdf")
-        )
-        fig = plt.figure()
-        ax = plt.boxplot(self.cells_complete, labels=self.celltypes)
-        plt.ylabel("Count")
-        plt.title("Counts of cell-types in generated samples")
-        plt.savefig(
-            os.path.join(self.simulation_folder, "boxplot_ncells_complete.pdf")
         )
 
         self.props = np.concatenate([self.props_complete, self.props_sparse], axis=0)
@@ -304,7 +299,7 @@ class Simulate_st(object):
         pass
 
     def initialize(self, config):
-        self.config["simulation_params"] = config
+        self.config = config
         self.sc_adata = sc.read(config["simulation_params"]["scdata"])
         if "sparse" in str(type(self.sc_adata.X)):
             self.sc_adata.X = np.array(self.sc_adata.X.todense())
@@ -370,19 +365,13 @@ class Simulate_st(object):
 
         fig = plt.figure()
         ax = plt.boxplot(self.props_sparse, labels=self.celltypes)  #
+        if self.n_celltypes>10:
+            plt.xticks(rotation=45, ha="right")
         plt.ylabel("Proportion")
         plt.title("Proportions of cell-types in generated samples")
         plt.savefig(
-            os.path.join(self.config.simulation_folder, "boxplot_props_sparse.pdf")
+            os.path.join(self.simulation_folder, "boxplot_props_sparse.pdf")
         )
-        fig = plt.figure()
-        ax = plt.boxplot(self.cells_sparse, labels=self.celltypes)
-        plt.ylabel("Count")
-        plt.title("Counts of cell-types in generated samples")
-        plt.savefig(
-            os.path.join(self.config.simulation_folder, "boxplot_ncells_sparse.pdf")
-        )
-
         self.props = self.props_sparse
         self.cells = self.cells_sparse
 
@@ -462,7 +451,7 @@ class Simulate_st(object):
                 )
             )
 
-            if self.config["generate_component_figures"]:
+            if self.config["simulation_params"]["generate_component_figures"]:
                 idxs = {}
                 celltypes_col = []
                 for j in range(self.n_celltypes):
@@ -598,7 +587,8 @@ def simulate(config):
         print("Number of batches in single-cell data is 1. If this is incorrect, please specify name of the batch column as in the single-cell data object (.obs)")
         sim.simulate(save=True)
     sim.config["simulation_params"]["simulation_folder"] = os.path.join(sim.config["experiment_folder"], "simulation")
-    sim.config["simulation_params"]["concentration"] = list(sim.config["simulation_params"]["concentration"])
+    if config["simulation_params"]["type"]=="bulk":
+        sim.config["simulation_params"]["concentration"] = list(sim.config["simulation_params"]["concentration"])
     sim.config["deconv_params"]["reference"] = os.path.join(sim.config["simulation_params"]["simulation_folder"], "simulated.h5ad")
     save_dict_to_file(sim.config)
     

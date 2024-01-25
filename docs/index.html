@@ -50,7 +50,7 @@
 <pre><code>## Installation
 
 # Create and activate virtual environment
-conda create -y -n dissect python=3.8
+conda create -y -n dissect python=3.9
 conda activate dissect
 
 # Clone DISSECT
@@ -68,12 +68,34 @@ conda install -y jupyter
 # Go to tutorials directory within DISSECT
 cd DISSECT/tutorials
 </code></pre>
+<h2 id="gpu-usage">GPU usage</h2>
+
+<p>By default, tensorflow-gpu which is installed while installed DISSECT works as long as appropriate CUDA driver is installed. DISSECT uses tensorflow-gpu version 2.7.0 with CUDA 11.2 and cuDNN 8.1. The available devices to tensorflow can be checked as below.</p>
+
+<pre><code>
+import tensorflow as tf
+gpus = tf.config.list_physical_devices("GPU")
+print(gpus)
+</code></pre>
+<p>This will output a list of the available GPU devices as the output below where we have 1 GPU available.</p> 
+<pre><code>
+[PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')] 
+</code></pre>
+<p>In case there are multiple GPUs available, a particular GPU can be set by,</p>
+
+<pre><code>
+gpu_number = 0 # Using only the first GPU
+tf.config.experimental.set_visible_devices(gpus[gpu_number], 'GPU')
+</code></pre>
+
+
+
 <h2 id="tutorials">Tutorials</h2>
 <p>Interactive tutorials including required data are available as part of this repository at <a href="https://github.com/imsb-uke/DISSECT/tree/main/tutorials">Tutorials</a>.</p> Below are the static versions of these tutorials.
  <nav>
         <ul>
-            <li><a href="expanded_tutorial.html">1. Step by step tutorial</a></li>
-            <li><a href="minimal_tutorial.html">2. Minimal tutorial</a></li>
+            <li><a href="tutorial.html">1. Step by step tutorial for bulk</a></li>
+            <li><a href="tutorial_spatial.html">2. Step by step tutorial for spatial transcriptomics (10x Visium)</a></li>
         </ul>
     </nav>
 <p>To get answers quickly for a problem or feature request, please open an issue on <a href="https://github.com/imsb-uke/DISSECT">GitHub.</a></p>

@@ -4,7 +4,7 @@ config = {
     "simulation_params": { 
         "scdata": "/home/user/experiment/data.h5ad",  # Path to sc/snRNA-seq data, should be anndata
         "n_samples": None,  # Number of samples to generate. Default: 1000 times the number of celltypes,
-        "type": "bulk",
+        "type": "bulk", # bulk or st to simulate bulk and spatial transcriptomics respectively
         "celltype_col": "celltype",  # Name of the column corresponding to cell-type labels in adata.obs
         "batch_col": None,  # If more than one batches are present, name of the column corrsponding to batch labels in adata.obs
         "cells_per_sample": None,  # Number of cells to sample to generate one sample.
@@ -31,7 +31,7 @@ config = {
     "deconv_params": {
         "test_dataset": "../bulk.txt",
         "test_dataset_format": "txt",  # Either tab-delimited txt file with genes in rows or h5ad file compatible with Scanpy.
-        "test_dataset_type": "bulk",  # bulk, microarray or spatial
+        "test_dataset_type": "bulk",  # bulk or microarray. For spatial, set it to bulk as similar training procedure is used.
         "duplicated": "first",  # In case, there are duplicated genes in the test_dataset. To use the first occuring gene, write first. To sum the duplicated genes, write sum. To take average, write mean
         "normalize_simulated": "cpm",  # "cpm", # Only CPM and None is supported. Write CPM if not already TPM/CPM.
         "normalize_test": "cpm",  # Write CPM if not already TPM/CPM
@@ -39,7 +39,7 @@ config = {
         "test_in_mix": None,  # Number of test samples to use in the generation of online mixtures. None uses all samples.
         "simulated": True,  # True if dataset is already simulated. False, if it is a single-cell dataset.
         "sig_matrix": False,
-        "mix": "srm",
+        "mix": "srm", # srm for bulk and spatial data, rrm for microarray data
         "save_config": True,
         "network_params": {
             "n_hidden_layers": 4,  # Number of hidden layers
