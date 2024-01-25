@@ -16,7 +16,7 @@ conda >= v22 through [Anaconda](https://docs.anaconda.com/free/anaconda/install/
 ## Installation
 
 # Create and activate virtual environment. This is recommended to avoid conflict in dependencies.
-conda create -y -n dissect python=3.8
+conda create -y -n dissect python=3.9
 conda activate dissect
 
 # Clone DISSECT
