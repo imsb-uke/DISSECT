@@ -60,7 +60,7 @@ tf.config.experimental.set_visible_devices(gpus[gpu_number], 'GPU')
 
 ## Tutorials
 Interactive tutorials including required data are available as part of this repository at [Tutorials](https://github.com/imsb-uke/DISSECT/tree/main/tutorials).
-1. expanded_tutorial.ipynb: Step by step deconvolution for bulk
-2. expanded_tutorial_spatial.ipynb: Step by step deconvolution of spatial transcriptomics data (10x Visium)
+1. tutorial.ipynb: Step by step deconvolution for bulk
+2. tutorial_spatial.ipynb: Step by step deconvolution of spatial transcriptomics data (10x Visium)
 
 To get answers quickly for a problem or feature request, please open an issue.
