@@ -12,7 +12,7 @@ conda >= v22 through [Anaconda](https://docs.anaconda.com/free/anaconda/install/
 
 
 ## Installing
-```
+```python
 ## Installation
 
 # Create and activate virtual environment
