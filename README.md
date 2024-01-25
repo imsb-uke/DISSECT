@@ -15,7 +15,7 @@ conda >= v22 through [Anaconda](https://docs.anaconda.com/free/anaconda/install/
 ```python
 ## Installation
 
-# Create and activate virtual environment
+# Create and activate virtual environment. This is recommended to avoid conflict in dependencies.
 conda create -y -n dissect python=3.8
 conda activate dissect
 
@@ -27,12 +27,15 @@ git clone https://github.com/imsb-uke/DISSECT
 pip install -r DISSECT/requirements.txt --use-deprecated=legacy-resolver
 pip install DISSECT/.
 
-# Install jupyter lab
+# Install jupyter lab for interactive execution of notebooks
 conda install -y jupyter
 
 ## Tutorials to get started
 # Go to tutorials directory within DISSECT
 cd DISSECT/tutorials
+
+## Launch jupyter lab
+jupyter notebook
 
 ```
 
