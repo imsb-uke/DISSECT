@@ -1,16 +1,15 @@
 config = {
-    "experiment_folder": "/home/user/experiment",  # Path to save outputs. Default: expriment
+    "experiment_folder": "/home/user/experiment",  # Path to save outputs. Default: "/home/user/experiment"
 
     "simulation_params": { 
         "scdata": "/home/user/experiment/data.h5ad",  # Path to sc/snRNA-seq data, should be anndata
-        "n_samples": None,  # Number of samples to generate. Default: 1000 times the number of celltypes,
+        "n_samples": None,  # Number of samples to generate. Default (None): 1000 times the number of celltypes,
         "type": "bulk", # bulk or st to simulate bulk and spatial transcriptomics respectively
         "celltype_col": "celltype",  # Name of the column corresponding to cell-type labels in adata.obs
         "batch_col": None,  # If more than one batches are present, name of the column corrsponding to batch labels in adata.obs
-        "cells_per_sample": None,  # Number of cells to sample to generate one sample.
-        # Default 500
-        "downsample": None,  # If simulation_type is ST, a float is used to downsample counts
-        "preprocess": None,
+        "cells_per_sample": 500,  # Number of cells to sample to generate one sample.
+        "downsample": None,  # If simulation_type is ST, a float is used to downsample counts. Default (None): No downsampling
+        "preprocess": None, # Default (None) will no preprocess
         "filter": {  # Filtering of sc/snRNA-seq before simulating
             "min_genes": 200,
             "min_cells": 3,
@@ -21,7 +20,7 @@ config = {
         # Should be a vector of same length as the number of cell-types with non-zero values
         # Higher concentrations will be favored. e.g. concentration [0.2,0.2,1] for 3 cell-types will make fractions
         # of the third cell-types higher.
-        # Default: Vector of ones.
+        # Default (None): Vector of ones.
         "prop_sparse": 0.5,  # Proportion of sparse samples to generate. Default: 0.5
         # Sparse samples are samples in which some cell-types do not exist.
         # Probabilities of cell-types to not be present in the generate sample are uniform.
@@ -36,10 +35,11 @@ config = {
         "normalize_simulated": "cpm",  # "cpm", # Only CPM and None is supported. Write CPM if not already TPM/CPM.
         "normalize_test": "cpm",  # Write CPM if not already TPM/CPM
         "var_cutoff": 0.1,  # variance cutoff for gene filtering
-        "test_in_mix": None,  # Number of test samples to use in the generation of online mixtures. None uses all samples.
+        "test_in_mix": None,  # Number of test samples to use in the generation of online mixtures. Default (None) uses all samples.
         "simulated": True,  # True if dataset is already simulated. False, if it is a single-cell dataset.
-        "sig_matrix": False,
-        "mix": "srm", # srm for bulk and spatial data, rrm for microarray data
+        "sig_matrix": False, #  Whether the input is a signature matrix, i.e. a matrix of cell type by genes.
+        "mix": "srm", # srm (simulation-real mixture) mixes simulation and real data, and is intended for bulk and spatial RNAseq data. 
+                      # rrm (real-real mixture) mixes real data with itself, and is intended for bulk proteome data where same preprocessing can not be established as in RNAseq. 
         "save_config": True,
         "network_params": {
             "n_hidden_layers": 4,  # Number of hidden layers
@@ -56,7 +56,7 @@ config = {
             "lr": 1e-5,  # Learning rate
             "batch_size": 64,  # best - 64 # batch size
             "dropout": None,  # If you would like dropoouts in the model, write a list with same number of elements as n_hidden_layers above corresponding to each dropout layer.
-            # An example is [0.2,0.2,0,0.3,0.1,0.2]
+            # An example is [0.2,0.2,0,0.3,0.1,0.2]. Default (None) is no dropout
             "n_steps_expr": 5000
             },  # Parameters to use to build network.
         "alpha_range": [
