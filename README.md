@@ -70,6 +70,6 @@ scRNAseq: An h5ad compatible with Scanpy >=1.8.0. The cell metadata (.obs) must 
 Spatial transcriptomics: A h5ad compatible with Scanpy >=1.8.0.
 Gene ID formats should match between scRNAseq and bulk/spatial data but can be anything (HGNC symbols, ENSEMBL etc.).
 
-
+The code is also available via [Zenodo](https://zenodo.org/doi/10.5281/zenodo.10570403)
 
 To get answers quickly for a problem or feature request, please open an [issue](https://github.com/imsb-uke/DISSECT/issues).
