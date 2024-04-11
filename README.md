@@ -62,7 +62,7 @@ tf.config.experimental.set_visible_devices(gpus[gpu_number], 'GPU')
 ## Tutorials
 Interactive tutorials including required data are available as part of this repository at [Tutorials](https://github.com/imsb-uke/DISSECT/tree/main/tutorials).
 1. [tutorial.ipynb](https://github.com/imsb-uke/DISSECT/tree/main/tutorials/tutorial.ipynb): Step by step deconvolution for bulk
-2. [tutorial.ipynb](https://github.com/imsb-uke/DISSECT/tree/main/tutorials/tutorial_spatial.ipynb): Step by step deconvolution of spatial transcriptomics data (10x Visium)
+2. [tutorial_spatial.ipynb](https://github.com/imsb-uke/DISSECT/tree/main/tutorials/tutorial_spatial.ipynb): Step by step deconvolution of spatial transcriptomics data (10x Visium)
 
 ### A note on the supported formats
 bulk RNAseq/Proteomics: A tab seperated file (gene symbols in rows, sample names in columns), or an h5ad compatible with Scanpy >=1.8.0.
