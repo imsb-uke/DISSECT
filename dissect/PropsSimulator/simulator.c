@@ -1583,7 +1583,6 @@ static const char __pyx_k_float32[] = "float32";
 static const char __pyx_k_inplace[] = "inplace";
 static const char __pyx_k_min_prc[] = "min_prc";
 static const char __pyx_k_no_keep[] = "no_keep";
-static const char __pyx_k_on_data[] = "on data";
 static const char __pyx_k_prepare[] = "__prepare__";
 static const char __pyx_k_qc_vars[] = "qc_vars";
 static const char __pyx_k_randint[] = "randint";
@@ -1624,7 +1623,6 @@ static const char __pyx_k_adata_orig[] = "adata_orig";
 static const char __pyx_k_downsample[] = "downsample";
 static const char __pyx_k_experiment[] = "experiment_";
 static const char __pyx_k_initialize[] = "initialize";
-static const char __pyx_k_legend_loc[] = "legend_loc";
 static const char __pyx_k_n_complete[] = "n_complete";
 static const char __pyx_k_preprocess[] = "preprocess";
 static const char __pyx_k_simulation[] = "simulation";
@@ -1807,7 +1805,6 @@ static PyObject *__pyx_n_s_keep_sparse;
 static PyObject *__pyx_n_s_keeps;
 static PyObject *__pyx_n_s_labels;
 static PyObject *__pyx_n_s_layers;
-static PyObject *__pyx_n_s_legend_loc;
 static PyObject *__pyx_n_s_log1p;
 static PyObject *__pyx_kp_s_m_d_Y__H_M_S;
 static PyObject *__pyx_n_s_main;
@@ -1841,7 +1838,6 @@ static PyObject *__pyx_n_s_numpy;
 static PyObject *__pyx_n_s_object;
 static PyObject *__pyx_n_s_obs;
 static PyObject *__pyx_n_s_obsm;
-static PyObject *__pyx_kp_s_on_data;
 static PyObject *__pyx_n_s_ones;
 static PyObject *__pyx_n_s_open;
 static PyObject *__pyx_n_s_os;
@@ -7153,7 +7149,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_8Simulate_8simula
  *                 sc.tl.pca(tmp1)
  *                 fig, ax = plt.subplots(nrows=1, ncols=1)             # <<<<<<<<<<<<<<
  *                 sc.pl.pca(
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  */
       __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_plt); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 213, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
@@ -7223,7 +7219,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_8Simulate_8simula
  *                 sc.tl.pca(tmp1)
  *                 fig, ax = plt.subplots(nrows=1, ncols=1)
  *                 sc.pl.pca(             # <<<<<<<<<<<<<<
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  */
       __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_sc); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 214, __pyx_L1_error)
@@ -7238,7 +7234,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_8Simulate_8simula
       /* "dissect/PropsSimulator/simulator.pyx":215
  *                 fig, ax = plt.subplots(nrows=1, ncols=1)
  *                 sc.pl.pca(
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax             # <<<<<<<<<<<<<<
+ *                     tmp1, color="Celltype", show=False, ax=ax             # <<<<<<<<<<<<<<
  *                 )
  *                 plt.savefig(
  */
@@ -7247,18 +7243,17 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_8Simulate_8simula
       __Pyx_INCREF(__pyx_v_tmp1);
       __Pyx_GIVEREF(__pyx_v_tmp1);
       PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_v_tmp1);
-      __pyx_t_7 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 215, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 215, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_color, __pyx_n_s_Celltype) < 0) __PYX_ERR(0, 215, __pyx_L1_error)
       if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_show, Py_False) < 0) __PYX_ERR(0, 215, __pyx_L1_error)
-      if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_legend_loc, __pyx_kp_s_on_data) < 0) __PYX_ERR(0, 215, __pyx_L1_error)
       if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_ax, __pyx_v_ax) < 0) __PYX_ERR(0, 215, __pyx_L1_error)
 
       /* "dissect/PropsSimulator/simulator.pyx":214
  *                 sc.tl.pca(tmp1)
  *                 fig, ax = plt.subplots(nrows=1, ncols=1)
  *                 sc.pl.pca(             # <<<<<<<<<<<<<<
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  */
       __pyx_t_9 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_6, __pyx_t_7); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 214, __pyx_L1_error)
@@ -7269,7 +7264,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_8Simulate_8simula
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
       /* "dissect/PropsSimulator/simulator.pyx":217
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  *                 plt.savefig(             # <<<<<<<<<<<<<<
  *                     os.path.join(
@@ -7355,7 +7350,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_8Simulate_8simula
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
       /* "dissect/PropsSimulator/simulator.pyx":217
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  *                 plt.savefig(             # <<<<<<<<<<<<<<
  *                     os.path.join(
@@ -7379,7 +7374,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_8Simulate_8simula
       if (PyDict_SetItem(__pyx_t_9, __pyx_n_s_bbox_inches, __pyx_n_s_tight) < 0) __PYX_ERR(0, 222, __pyx_L1_error)
 
       /* "dissect/PropsSimulator/simulator.pyx":217
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  *                 plt.savefig(             # <<<<<<<<<<<<<<
  *                     os.path.join(
@@ -9044,7 +9039,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_8Simulate_10simul
  *                 sc.tl.pca(tmp1)
  *                 fig, ax = plt.subplots(nrows=1, ncols=1)             # <<<<<<<<<<<<<<
  *                 sc.pl.pca(
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  */
       __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_plt); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 285, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
@@ -9114,7 +9109,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_8Simulate_10simul
  *                 sc.tl.pca(tmp1)
  *                 fig, ax = plt.subplots(nrows=1, ncols=1)
  *                 sc.pl.pca(             # <<<<<<<<<<<<<<
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  */
       __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_sc); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 286, __pyx_L1_error)
@@ -9129,7 +9124,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_8Simulate_10simul
       /* "dissect/PropsSimulator/simulator.pyx":287
  *                 fig, ax = plt.subplots(nrows=1, ncols=1)
  *                 sc.pl.pca(
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax             # <<<<<<<<<<<<<<
+ *                     tmp1, color="Celltype", show=False, ax=ax             # <<<<<<<<<<<<<<
  *                 )
  *                 plt.savefig(
  */
@@ -9138,18 +9133,17 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_8Simulate_10simul
       __Pyx_INCREF(__pyx_v_tmp1);
       __Pyx_GIVEREF(__pyx_v_tmp1);
       PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_tmp1);
-      __pyx_t_9 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 287, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 287, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
       if (PyDict_SetItem(__pyx_t_9, __pyx_n_s_color, __pyx_n_s_Celltype) < 0) __PYX_ERR(0, 287, __pyx_L1_error)
       if (PyDict_SetItem(__pyx_t_9, __pyx_n_s_show, Py_False) < 0) __PYX_ERR(0, 287, __pyx_L1_error)
-      if (PyDict_SetItem(__pyx_t_9, __pyx_n_s_legend_loc, __pyx_kp_s_on_data) < 0) __PYX_ERR(0, 287, __pyx_L1_error)
       if (PyDict_SetItem(__pyx_t_9, __pyx_n_s_ax, __pyx_v_ax) < 0) __PYX_ERR(0, 287, __pyx_L1_error)
 
       /* "dissect/PropsSimulator/simulator.pyx":286
  *                 sc.tl.pca(tmp1)
  *                 fig, ax = plt.subplots(nrows=1, ncols=1)
  *                 sc.pl.pca(             # <<<<<<<<<<<<<<
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  */
       __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, __pyx_t_9); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 286, __pyx_L1_error)
@@ -9160,7 +9154,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_8Simulate_10simul
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
       /* "dissect/PropsSimulator/simulator.pyx":289
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  *                 plt.savefig(             # <<<<<<<<<<<<<<
  *                     os.path.join(
@@ -9246,7 +9240,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_8Simulate_10simul
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
       /* "dissect/PropsSimulator/simulator.pyx":289
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  *                 plt.savefig(             # <<<<<<<<<<<<<<
  *                     os.path.join(
@@ -9270,7 +9264,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_8Simulate_10simul
       if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_bbox_inches, __pyx_n_s_tight) < 0) __PYX_ERR(0, 294, __pyx_L1_error)
 
       /* "dissect/PropsSimulator/simulator.pyx":289
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  *                 plt.savefig(             # <<<<<<<<<<<<<<
  *                     os.path.join(
@@ -14062,7 +14056,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_11Simulate_st_8si
  *                 sc.tl.pca(tmp1)
  *                 fig, ax = plt.subplots(nrows=1, ncols=1)             # <<<<<<<<<<<<<<
  *                 sc.pl.pca(
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  */
       __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_plt); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 474, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
@@ -14132,7 +14126,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_11Simulate_st_8si
  *                 sc.tl.pca(tmp1)
  *                 fig, ax = plt.subplots(nrows=1, ncols=1)
  *                 sc.pl.pca(             # <<<<<<<<<<<<<<
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  */
       __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_sc); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 475, __pyx_L1_error)
@@ -14147,7 +14141,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_11Simulate_st_8si
       /* "dissect/PropsSimulator/simulator.pyx":476
  *                 fig, ax = plt.subplots(nrows=1, ncols=1)
  *                 sc.pl.pca(
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax             # <<<<<<<<<<<<<<
+ *                     tmp1, color="Celltype", show=False, ax=ax             # <<<<<<<<<<<<<<
  *                 )
  *                 plt.savefig(
  */
@@ -14156,18 +14150,17 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_11Simulate_st_8si
       __Pyx_INCREF(__pyx_v_tmp1);
       __Pyx_GIVEREF(__pyx_v_tmp1);
       PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_v_tmp1);
-      __pyx_t_7 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 476, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 476, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_color, __pyx_n_s_Celltype) < 0) __PYX_ERR(0, 476, __pyx_L1_error)
       if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_show, Py_False) < 0) __PYX_ERR(0, 476, __pyx_L1_error)
-      if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_legend_loc, __pyx_kp_s_on_data) < 0) __PYX_ERR(0, 476, __pyx_L1_error)
       if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_ax, __pyx_v_ax) < 0) __PYX_ERR(0, 476, __pyx_L1_error)
 
       /* "dissect/PropsSimulator/simulator.pyx":475
  *                 sc.tl.pca(tmp1)
  *                 fig, ax = plt.subplots(nrows=1, ncols=1)
  *                 sc.pl.pca(             # <<<<<<<<<<<<<<
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  */
       __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, __pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 475, __pyx_L1_error)
@@ -14178,7 +14171,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_11Simulate_st_8si
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
       /* "dissect/PropsSimulator/simulator.pyx":478
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  *                 plt.savefig(             # <<<<<<<<<<<<<<
  *                     os.path.join(
@@ -14264,7 +14257,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_11Simulate_st_8si
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
       /* "dissect/PropsSimulator/simulator.pyx":478
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  *                 plt.savefig(             # <<<<<<<<<<<<<<
  *                     os.path.join(
@@ -14288,7 +14281,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_11Simulate_st_8si
       if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_bbox_inches, __pyx_n_s_tight) < 0) __PYX_ERR(0, 483, __pyx_L1_error)
 
       /* "dissect/PropsSimulator/simulator.pyx":478
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  *                 plt.savefig(             # <<<<<<<<<<<<<<
  *                     os.path.join(
@@ -15953,7 +15946,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_11Simulate_st_10s
  *                 sc.tl.pca(tmp1)
  *                 fig, ax = plt.subplots(nrows=1, ncols=1)             # <<<<<<<<<<<<<<
  *                 sc.pl.pca(
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  */
       __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_plt); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 546, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
@@ -16023,7 +16016,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_11Simulate_st_10s
  *                 sc.tl.pca(tmp1)
  *                 fig, ax = plt.subplots(nrows=1, ncols=1)
  *                 sc.pl.pca(             # <<<<<<<<<<<<<<
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  */
       __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_sc); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 547, __pyx_L1_error)
@@ -16038,7 +16031,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_11Simulate_st_10s
       /* "dissect/PropsSimulator/simulator.pyx":548
  *                 fig, ax = plt.subplots(nrows=1, ncols=1)
  *                 sc.pl.pca(
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax             # <<<<<<<<<<<<<<
+ *                     tmp1, color="Celltype", show=False, ax=ax             # <<<<<<<<<<<<<<
  *                 )
  *                 plt.savefig(
  */
@@ -16047,18 +16040,17 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_11Simulate_st_10s
       __Pyx_INCREF(__pyx_v_tmp1);
       __Pyx_GIVEREF(__pyx_v_tmp1);
       PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_tmp1);
-      __pyx_t_9 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 548, __pyx_L1_error)
+      __pyx_t_9 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 548, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
       if (PyDict_SetItem(__pyx_t_9, __pyx_n_s_color, __pyx_n_s_Celltype) < 0) __PYX_ERR(0, 548, __pyx_L1_error)
       if (PyDict_SetItem(__pyx_t_9, __pyx_n_s_show, Py_False) < 0) __PYX_ERR(0, 548, __pyx_L1_error)
-      if (PyDict_SetItem(__pyx_t_9, __pyx_n_s_legend_loc, __pyx_kp_s_on_data) < 0) __PYX_ERR(0, 548, __pyx_L1_error)
       if (PyDict_SetItem(__pyx_t_9, __pyx_n_s_ax, __pyx_v_ax) < 0) __PYX_ERR(0, 548, __pyx_L1_error)
 
       /* "dissect/PropsSimulator/simulator.pyx":547
  *                 sc.tl.pca(tmp1)
  *                 fig, ax = plt.subplots(nrows=1, ncols=1)
  *                 sc.pl.pca(             # <<<<<<<<<<<<<<
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  */
       __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, __pyx_t_9); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 547, __pyx_L1_error)
@@ -16069,7 +16061,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_11Simulate_st_10s
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
       /* "dissect/PropsSimulator/simulator.pyx":550
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  *                 plt.savefig(             # <<<<<<<<<<<<<<
  *                     os.path.join(
@@ -16155,7 +16147,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_11Simulate_st_10s
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
       /* "dissect/PropsSimulator/simulator.pyx":550
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  *                 plt.savefig(             # <<<<<<<<<<<<<<
  *                     os.path.join(
@@ -16179,7 +16171,7 @@ static PyObject *__pyx_pf_7dissect_14PropsSimulator_9simulator_11Simulate_st_10s
       if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_bbox_inches, __pyx_n_s_tight) < 0) __PYX_ERR(0, 555, __pyx_L1_error)
 
       /* "dissect/PropsSimulator/simulator.pyx":550
- *                     tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+ *                     tmp1, color="Celltype", show=False, ax=ax
  *                 )
  *                 plt.savefig(             # <<<<<<<<<<<<<<
  *                     os.path.join(
@@ -17395,7 +17387,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_keeps, __pyx_k_keeps, sizeof(__pyx_k_keeps), 0, 0, 1, 1},
   {&__pyx_n_s_labels, __pyx_k_labels, sizeof(__pyx_k_labels), 0, 0, 1, 1},
   {&__pyx_n_s_layers, __pyx_k_layers, sizeof(__pyx_k_layers), 0, 0, 1, 1},
-  {&__pyx_n_s_legend_loc, __pyx_k_legend_loc, sizeof(__pyx_k_legend_loc), 0, 0, 1, 1},
   {&__pyx_n_s_log1p, __pyx_k_log1p, sizeof(__pyx_k_log1p), 0, 0, 1, 1},
   {&__pyx_kp_s_m_d_Y__H_M_S, __pyx_k_m_d_Y__H_M_S, sizeof(__pyx_k_m_d_Y__H_M_S), 0, 0, 1, 0},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
@@ -17429,7 +17420,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_object, __pyx_k_object, sizeof(__pyx_k_object), 0, 0, 1, 1},
   {&__pyx_n_s_obs, __pyx_k_obs, sizeof(__pyx_k_obs), 0, 0, 1, 1},
   {&__pyx_n_s_obsm, __pyx_k_obsm, sizeof(__pyx_k_obsm), 0, 0, 1, 1},
-  {&__pyx_kp_s_on_data, __pyx_k_on_data, sizeof(__pyx_k_on_data), 0, 0, 1, 0},
   {&__pyx_n_s_ones, __pyx_k_ones, sizeof(__pyx_k_ones), 0, 0, 1, 1},
   {&__pyx_n_s_open, __pyx_k_open, sizeof(__pyx_k_open), 0, 0, 1, 1},
   {&__pyx_n_s_os, __pyx_k_os, sizeof(__pyx_k_os), 0, 0, 1, 1},

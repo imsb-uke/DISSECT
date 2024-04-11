@@ -212,7 +212,7 @@ class Simulate(object):
                 sc.tl.pca(tmp1)
                 fig, ax = plt.subplots(nrows=1, ncols=1)
                 sc.pl.pca(
-                    tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+                    tmp1, color="Celltype", show=False, ax=ax
                 )
                 plt.savefig(
                     os.path.join(
@@ -284,7 +284,7 @@ class Simulate(object):
                 sc.tl.pca(tmp1)
                 fig, ax = plt.subplots(nrows=1, ncols=1)
                 sc.pl.pca(
-                    tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+                    tmp1, color="Celltype", show=False, ax=ax
                 )
                 plt.savefig(
                     os.path.join(
@@ -473,7 +473,7 @@ class Simulate_st(object):
                 sc.tl.pca(tmp1)
                 fig, ax = plt.subplots(nrows=1, ncols=1)
                 sc.pl.pca(
-                    tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+                    tmp1, color="Celltype", show=False, ax=ax
                 )
                 plt.savefig(
                     os.path.join(
@@ -545,7 +545,7 @@ class Simulate_st(object):
                 sc.tl.pca(tmp1)
                 fig, ax = plt.subplots(nrows=1, ncols=1)
                 sc.pl.pca(
-                    tmp1, color="Celltype", show=False, legend_loc="on data", ax=ax
+                    tmp1, color="Celltype", show=False, ax=ax
                 )
                 plt.savefig(
                     os.path.join(
