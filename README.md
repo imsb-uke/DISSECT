@@ -77,4 +77,5 @@ The code is also available via [Zenodo](https://zenodo.org/doi/10.5281/zenodo.10
 
 To get answers quickly for a problem or feature request, please open an [issue](https://github.com/imsb-uke/DISSECT/issues).
 
+## References
 [1] Khatri, R., Machart, P. & Bonn, S. DISSECT: deep semi-supervised consistency regularization for accurate cell type fraction and gene expression estimation. Genome Biol 25, 112 (2024). https://doi.org/10.1186/s13059-024-03251-5
