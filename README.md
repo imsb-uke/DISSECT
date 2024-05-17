@@ -1,6 +1,6 @@
 # DISSECT
 
-DISSECT is a deep semi-supervised learning framework that performs complete deconvolution of gene expression mixtures such as bulk RNAseq, proteomics and spatial transcriptomics
+DISSECT is a deep semi-supervised learning framework that performs complete deconvolution of gene expression mixtures such as bulk RNAseq, proteomics and spatial transcriptomics. The manuscript is available at [Genome Biology](https://link.springer.com/article/10.1186/s13059-024-03251-5).
 
 This repository contains the functions to run DISSECT interactively in Python. The code to reproduce figures and run deconvolution pipeline through comamnd line is available [here](https://github.com/imsb-uke/deconvolution).  
 
@@ -76,3 +76,5 @@ Gene ID formats should match between scRNAseq and bulk/spatial data but can be a
 The code is also available via [Zenodo](https://zenodo.org/doi/10.5281/zenodo.10570403)
 
 To get answers quickly for a problem or feature request, please open an [issue](https://github.com/imsb-uke/DISSECT/issues).
+
+[1] Khatri, R., Machart, P. & Bonn, S. DISSECT: deep semi-supervised consistency regularization for accurate cell type fraction and gene expression estimation. Genome Biol 25, 112 (2024). https://doi.org/10.1186/s13059-024-03251-5
