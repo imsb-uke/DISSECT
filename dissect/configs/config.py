@@ -35,7 +35,7 @@ config = {
         "normalize_simulated": "cpm",  # "cpm", # Only CPM and None is supported. Write CPM if not already TPM/CPM.
         "normalize_test": "cpm",  # Write CPM if not already TPM/CPM
         "var_cutoff": 0.1,  # variance cutoff for gene filtering
-        "test_in_mix": None,  # Number of test samples to use in the generation of online mixtures. Default (None) uses all samples.
+        "test_in_mix": 1,  # Number of test samples to use in the generation of online mixtures.
         "simulated": True,  # True if dataset is already simulated. False, if it is a single-cell dataset.
         "sig_matrix": False, #  Whether the input is a signature matrix, i.e. a matrix of cell type by genes.
         "mix": "srm", # srm (simulation-real mixture) mixes simulation and real data, and is intended for bulk and spatial RNAseq data. 

@@ -19,6 +19,9 @@ class Simulate(object):
     def initialize(self, config):
         self.config = config
         self.sc_adata = sc.read(config["simulation_params"]["scdata"])
+        self.sc_adata.obs[config["simulation_params"]["celltype_col"]] = self.sc_adata.obs[config["simulation_params"]["celltype_col"]].astype(str)
+        self.sc_adata.obs[config["simulation_params"]["celltype_col"]].replace("/","_",regex=True,inplace=True)
+        self.sc_adata.obs[config["simulation_params"]["celltype_col"]] = self.sc_adata.obs[config["simulation_params"]["celltype_col"]].astype("category")
         if "sparse" in str(type(self.sc_adata.X)):
             self.sc_adata.X = np.array(self.sc_adata.X.todense())
         self.celltypes = np.sort(
@@ -323,6 +326,9 @@ class Simulate_st(object):
     def initialize(self, config):
         self.config = config
         self.sc_adata = sc.read(config["simulation_params"]["scdata"])
+        self.sc_adata.obs[config["simulation_params"]["celltype_col"]] = self.sc_adata.obs[config["simulation_params"]["celltype_col"]].astype(str)
+        self.sc_adata.obs[config["simulation_params"]["celltype_col"]].replace("/","_",regex=True,inplace=True)
+        self.sc_adata.obs[config["simulation_params"]["celltype_col"]] = self.sc_adata.obs[config["simulation_params"]["celltype_col"]].astype("category")
         if "sparse" in str(type(self.sc_adata.X)):
             self.sc_adata.X = np.array(self.sc_adata.X.todense())
         self.celltypes = np.sort(
