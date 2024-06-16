@@ -227,6 +227,25 @@ def run_dissect_frac(config):
         )
         df_y_hat.to_csv(results_path, sep="\t")
 
+        ## Output score
+        last_layer = model_p.layers[-1]
+        last_layer_config = last_layer.get_config()
+        weights, biases = last_layer.get_weights()
+        last_layer_config['activation'] = None
+        new_last_layer = tf.keras.layers.Dense.from_config(last_layer_config)
+        new_last_layer.build(input_shape=last_layer.input_shape)
+        new_last_layer.set_weights([weights, biases])
+        pre_softmax_model = tf.keras.models.Model(inputs=model.input, outputs=new_last_layer(model.layers[-2].output))
+        scores = pre_softmax_model.predict(normalize_per_batch(X_real_test, n_features))
+
+        df_y_hat_scores = pd.DataFrame(scores, columns=celltypes)
+        df_y_hat_scores.index = sample_names
+        scores_path = os.path.join(
+            config["experiment_folder"], "dissect_scores_{}.txt".format(j)
+        )
+        df_y_hat_scores.to_csv(scores_path, sep="\t")
+
+
         # metrics = ["r", "rmse", "ccc", "avgr", "avgrmse", "avgccc"]
         # metrics_vals = [rs, rmses, cccs, avgrs, avgrmses, avgcccs]
         # df_metrics = pd.DataFrame(columns=metrics,
@@ -256,9 +275,27 @@ def run_dissect_frac(config):
             df_ens = df_curr
         else:
             df_ens = df_ens + df_curr
+
     df_ens = df_ens / len(config["deconv_params"]["models"])
     savepath = os.path.join(config["experiment_folder"], "dissect_fractions.txt")
     print("Predictions are saved to {}".format(savepath))
+    df_ens.to_csv(savepath, sep="\t")
+
+    for i in range(len(config["deconv_params"]["models"])):
+        df_curr = pd.read_table(
+            os.path.join(
+                config["experiment_folder"], "dissect_scores_{}.txt".format(i)
+            ),
+            index_col=0,
+        )
+        if i == 0:
+            df_ens = df_curr
+        else:
+            df_ens = df_ens + df_curr
+
+    df_ens = df_ens / len(config["deconv_params"]["models"])
+    savepath = os.path.join(config["experiment_folder"], "dissect_scores.txt")
+    print("Scores are saved to {}".format(savepath))
     df_ens.to_csv(savepath, sep="\t")
 
 if __name__ == "__main__":
