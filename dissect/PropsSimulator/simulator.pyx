@@ -4,6 +4,7 @@ import random
 import numpy as np
 import pandas as pd
 import anndata as ad
+from scipy.sparse import csr_matrix
 from anndata import AnnData
 import scanpy as sc
 import shutil
@@ -114,7 +115,8 @@ class Simulate(object):
         if self.n_celltypes>10:
             plt.xticks(rotation=45, ha="right")
         plt.savefig(
-            os.path.join(self.simulation_folder, "boxplot_props_complete.pdf")
+            os.path.join(self.simulation_folder, "boxplot_props_complete.pdf"),
+            bbox_inches="tight"
         )
 
         self.props = np.concatenate([self.props_complete, self.props_sparse], axis=0)
@@ -179,6 +181,10 @@ class Simulate(object):
                     total_sample = total_sample + sample
             adata.X[i, :] = total_sample
 
+        # convert to sparse matrices
+        for i in range(self.n_celltypes):
+            adata.layers[self.celltypes[i]] = csr_matrix(adata.layers[self.celltypes[i]])
+
         if save:
             adata.write(os.path.join(self.simulation_folder, "simulated.h5ad"))
             sc.set_figure_params(dpi=200)
@@ -201,7 +207,7 @@ class Simulate(object):
                     idxs[celltype] = adata.obsm["cells"][:, j] > 0
                     celltypes_col = celltypes_col + [celltype] * idxs[celltype].sum()
                 X = [
-                    adata.layers[celltype][idxs[celltype], :]
+                    adata.layers[celltype].toarray()[idxs[celltype], :]
                     for celltype in self.celltypes
                 ]
                 tmp1 = AnnData(
@@ -273,7 +279,7 @@ class Simulate(object):
                     idxs[celltype] = adata.obsm["cells"][:, j] > 0
                     celltypes_col = celltypes_col + [celltype] * idxs[celltype].sum()
                 X = [
-                    adata.layers[celltype][idxs[celltype], :]
+                    adata.layers[celltype].toarray()[idxs[celltype], :]
                     for celltype in self.celltypes
                 ]
                 tmp1 = AnnData(
@@ -376,7 +382,8 @@ class Simulate_st(object):
         plt.ylabel("Proportion")
         plt.title("Proportions of cell-types in generated samples")
         plt.savefig(
-            os.path.join(self.simulation_folder, "boxplot_props_sparse.pdf")
+            os.path.join(self.simulation_folder, "boxplot_props_sparse.pdf"),
+            bbox_inches="tight"
         )
         self.props = self.props_sparse
         self.cells = self.cells_sparse
@@ -439,6 +446,10 @@ class Simulate_st(object):
                     total_sample = total_sample + sample
             adata.X[i, :] = total_sample
 
+        # convert to sparse matrices
+        for i in range(self.n_celltypes):
+            adata.layers[self.celltypes[i]] = csr_matrix(adata.layers[self.celltypes[i]])
+
         if self.config["simulation_params"]["downsample"]:
             sc.pp.downsample_counts(
                 adata, counts_per_cell=self.config["simulation_params"]["downsample"] * adata.X.sum(1)
@@ -465,7 +476,7 @@ class Simulate_st(object):
                     idxs[celltype] = adata.obsm["cells"][:, j] > 0
                     celltypes_col = celltypes_col + [celltype] * idxs[celltype].sum()
                 X = [
-                    adata.layers[celltype][idxs[celltype], :]
+                    adata.layers[celltype].toarray()[idxs[celltype], :]
                     for celltype in self.celltypes
                 ]
                 tmp1 = AnnData(
@@ -537,7 +548,7 @@ class Simulate_st(object):
                     idxs[celltype] = adata.obsm["cells"][:, j] > 0
                     celltypes_col = celltypes_col + [celltype] * idxs[celltype].sum()
                 X = [
-                    adata.layers[celltype][idxs[celltype], :]
+                    adata.layers[celltype].toarray()[idxs[celltype], :]
                     for celltype in self.celltypes
                 ]
                 tmp1 = AnnData(
