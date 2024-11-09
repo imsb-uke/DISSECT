@@ -28,6 +28,7 @@ from keras.models import Model
 from keras import backend as K
 from keras.datasets import mnist
 from tensorflow.keras.utils import to_categorical
+import scipy
 
 warnings.filterwarnings("ignore")
 
@@ -95,7 +96,9 @@ def run_dissect_expr(config):
     X_celltypes = {}
     X_sim = np.array(data.X)
     for layer in data.layers:
-        X_celltypes[layer] = np.array(data.layers[layer])  # ascontiguous
+        if scipy.sparse.issparse(data.layers[layer]):
+            data.layers[layer] = data.layers[layer].toarray()
+        X_celltypes[layer] = np.array(data.layers[layer])
         df = pd.DataFrame(X_celltypes.keys(), columns=["Celltype"])
 
     df["Celltype"] = df.Celltype.astype("category")
