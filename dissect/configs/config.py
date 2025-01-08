@@ -3,6 +3,7 @@ config = {
 
     "simulation_params": { 
         "scdata": "/home/user/experiment/data.h5ad",  # Path to sc/snRNA-seq data, should be anndata
+        "save_expr": False,
         "n_samples": None,  # Number of samples to generate. Default (None): 1000 times the number of celltypes,
         "type": "bulk", # bulk or st to simulate bulk and spatial transcriptomics respectively
         "celltype_col": "celltype",  # Name of the column corresponding to cell-type labels in adata.obs
