@@ -59,7 +59,6 @@ def run_dissect_expr(config):
             )
         else:
             real_fractions = pd.read_table(zero_path, index_col=0)
-
     else:
         real_fractions = pd.read_table(ens_path, index_col=0)
 
@@ -81,10 +80,8 @@ def run_dissect_expr(config):
         data.layers[layer] = tmp.X
 
     X_real = real_data.to_df()
-
     X_real = X_real.loc[:, ~X_real.columns.duplicated(keep="first")]
 
-    # intersect
     common_genes = list(set(X_real.columns.tolist()) & set(data.var_names.tolist()))
     print("Estimating expression of {} common genes".format(len(common_genes)))
 
@@ -102,14 +99,23 @@ def run_dissect_expr(config):
         df = pd.DataFrame(X_celltypes.keys(), columns=["Celltype"])
 
     df["Celltype"] = df.Celltype.astype("category")
-
     hot_encoding = np.array(pd.get_dummies(df.Celltype))
-    hot_encoding
 
-    # Normalize
-    max_val = max([X_sim.max(), X_real.max()])
-    X_sim = X_sim / max_val
-    X_real = X_real / max_val
+    mean_sum_sim = np.mean(np.sum(X_sim, axis=1))
+    X_real_normalized = X_real / np.sum(X_real, axis=1, keepdims=True) * mean_sum_sim
+    X_sim_normalized = X_sim.copy()
+
+    scaling_method = config["deconv_params"]["network_params"]["expr_scaling"]
+    if scaling_method == "p99":
+        max_val = np.percentile(
+            np.concatenate([X_sim_normalized.flatten(), X_real_normalized.flatten()]),
+            99
+        )
+    else:
+        max_val = max([X_sim_normalized.max(), X_real_normalized.max()])
+
+    X_sim = X_sim_normalized / max_val
+    X_real = X_real_normalized / max_val
 
     for celltype in X_celltypes.keys():
         X_celltypes[celltype] = np.concatenate(
@@ -133,18 +139,6 @@ def run_dissect_expr(config):
 
     tmp_ls = []
     print("Preparing training datasets.")
-    # for i in tqdm(range(X_celltypes[list(X_celltypes.keys())[0]].shape[0])):
-    #     tmp_ls.append(
-    #         np.concatenate(
-    #             [
-    #                 X_celltypes[celltype][i, :].reshape(
-    #                     (1, X_celltypes[celltype].shape[1])
-    #                 )
-    #                 for celltype in X_celltypes.keys()
-    #             ],
-    #             axis=0,
-    #         )
-    #     )
     for i in range(X_celltypes[list(X_celltypes.keys())[0]].shape[0]):
         tmp_ls.append(
             np.concatenate(
@@ -166,15 +160,12 @@ def run_dissect_expr(config):
     X_sim_gt = X_sim_gt / max_val
 
     X_real_input = np.repeat(X_real, repeats=df.shape[0], axis=0)
-    # labels = np.array(df.encoding.tolist()*X_real.shape[0])
     labels = np.concatenate([hot_encoding] * X_real.shape[0], axis=0)
     X_real_input = np.concatenate([X_real_input, labels], axis=1)
 
     labels = np.repeat(np.array(hot_encoding), repeats=X_real.shape[0], axis=0)
 
     class Sampling(layers.Layer):
-        """Uses (z_mean, z_log_var) to sample z, the vector encoding a digit."""
-
         def call(self, inputs):
             z_mean, z_log_var = inputs
             batch = tf.shape(z_mean)[0]
@@ -195,29 +186,21 @@ def run_dissect_expr(config):
             **kwargs
         ):
             super(Encoder, self).__init__(name=name, **kwargs)
-            # self.dense_proj1 = layers.Dense(intermediate_dim1, activation='relu')
-            # self.drop1 = layers.Dropout(0.2)
             self.dense_proj2 = layers.Dense(intermediate_dim2, activation="relu")
-            # self.drop2 = layers.Dropout(0.2)
             self.dense_proj3 = layers.Dense(intermediate_dim3, activation="relu")
-            self.dense_mean = layers.Dense(latent_dim)  # mu
-            self.dense_log_var = layers.Dense(latent_dim)  # sigma
+            self.dense_mean = layers.Dense(latent_dim)
+            self.dense_log_var = layers.Dense(latent_dim)
             self.sampling = Sampling()
 
         def call(self, inputs):
-            # x = self.dense_proj1(inputs)
-            # x = self.drop1(x)
             x = self.dense_proj2(inputs)
-            # x = self.drop2(x)
             x = self.dense_proj3(x)
-            z_mean = self.dense_mean(x)  # mu
-            z_log_var = self.dense_log_var(x)  # sigma
+            z_mean = self.dense_mean(x)
+            z_log_var = self.dense_log_var(x)
             z = self.sampling((z_mean, z_log_var))
             return z_mean, z_log_var, z
 
     class Decoder(layers.Layer):
-        """Converts z, the encoded digit vector, back into a readable digit."""
-
         def __init__(
             self,
             original_dim,
@@ -228,7 +211,6 @@ def run_dissect_expr(config):
             **kwargs
         ):
             super(Decoder, self).__init__(name=name, **kwargs)
-            # self.dense_proj4 = layers.Dense(intermediate_dim1, activation='relu')
             self.dense_proj5 = layers.Dense(intermediate_dim2, activation="relu")
             self.dense_proj6 = layers.Dense(intermediate_dim3, activation="relu")
             self.dense_output = layers.Dense(
@@ -237,28 +219,11 @@ def run_dissect_expr(config):
 
         def call(self, inputs, labels):
             x = tf.keras.layers.Concatenate(axis=-1)([inputs, labels])
-            # x = self.dense_proj4(x)
-            # x = self.dense_proj4(concat([inputs, labels]))
-            # inputs_cond = merge([inputs, labels], mode='concat', concat_axis=1)
             x = self.dense_proj5(x)
             x = self.dense_proj6(x)
             return self.dense_output(x)
 
-    class Fractions(layers.Layer):
-        """Converts z, the encoded digit vector, back into a readable digit."""
-
-        def __init__(self, n_labels, name="fraction", **kwargs):
-            super(Fractions, self).__init__(name=name, **kwargs)
-            self.dense_output = layers.Dense(n_labels, activation="softmax")
-
-        def call(self, inputs):
-            return self.dense_output(inputs)
-
-    import tensorflow as tf
-
     class VariationalAutoEncoder(tf.keras.Model):
-        """Combines the encoder and decoder into an end-to-end model for training."""
-
         def __init__(
             self,
             original_dim,
@@ -283,20 +248,13 @@ def run_dissect_expr(config):
                 intermediate_dim2=intermediate_dim2,
                 intermediate_dim3=intermediate_dim1,
             )
-            # self.fractions = Fractions(labels.shape[1])
 
         def call(self, inputs, labels):
-            # self._set_inputs(inputs)
             z_mean, z_log_var, z = self.encoder(inputs)
-            # z = self.encoder(inputs)
             reconstructed = self.decoder(z, labels)
-            # fractions = self.fractions(z)
-            # Add KL divergence regularization loss.
             kl_loss = -0.5 * tf.reduce_mean(
                 z_log_var - tf.square(z_mean) - tf.exp(z_log_var) + 1
             )
-            # self.add_loss(kl_loss)
-
             return reconstructed, kl_loss
 
     fract = X_sim_gt[:, -1]
@@ -309,20 +267,18 @@ def run_dissect_expr(config):
     batch_size = 128
 
     data = tf.data.Dataset.from_tensor_slices(
-        (X_sim_input, X_sim_gt, X_sim_input[:, X_sim_gt.shape[1] :], fract)
+        (X_sim_input, X_sim_gt, X_sim_input[:, X_sim_gt.shape[1]:], fract)
     )
-    # data = data.shuffle(1000).repeat().batch(batch_size=batch_size)
     data = data.repeat().batch(batch_size=batch_size)
     data_iter = iter(data)
 
     data1 = tf.data.Dataset.from_tensor_slices(
-        (X_real_input, X_real_input[:, X_sim_gt.shape[1] :], fract_real)
+        (X_real_input, X_real_input[:, X_sim_gt.shape[1]:], fract_real)
     )
-    # data1 = data1.shuffle(1000).repeat().batch(batch_size=batch_size)
     data1 = data1.repeat().batch(batch_size=batch_size)
     data_iter1 = iter(data1)
 
-    labels = X_real_input[:, X_sim_gt.shape[1] :]
+    labels = X_real_input[:, X_sim_gt.shape[1]:]
     if not config["deconv_params"]["network_params"]["n_steps_expr"]:
         total_steps = 5000 * df.shape[0]
     else:
@@ -338,51 +294,63 @@ def run_dissect_expr(config):
     )
     loss_metric = tf.keras.metrics.Sum()
 
-    # Iterate over epochs.
     optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
 
     pbar = tqdm(range(n_epochs))
+
+    lambda_2 = 0.1
+    beta_vae = 0.01
 
     i = 0
     for epoch in pbar:
         total_loss = 0
         total_loss_kl = 0
         total_loss_recon = 0
-        # Iterate over the batches of the dataset.
+
         for step in range(n_steps):
-            x_train1, x_train2, labels, true_fractions = data_iter.get_next()
-            x_train1_r, labels_r, true_fractions_r = data_iter1.get_next()
+            x_train_sim, x_train_sim_gt, labels_sim, true_fractions_sim = data_iter.get_next()
+            x_train_real, labels_real, true_fractions_real = data_iter1.get_next()
+
+            beta = tf.random.uniform(shape=(), minval=0.1, maxval=0.9)
+
+            batch_size_actual = tf.minimum(tf.shape(x_train_sim)[0], tf.shape(x_train_real)[0])
+            x_train_sim_batch = x_train_sim[:batch_size_actual]
+            x_train_real_batch = x_train_real[:batch_size_actual]
+            labels_sim_batch = labels_sim[:batch_size_actual]
+            labels_real_batch = labels_real[:batch_size_actual]
+            true_fractions_sim_batch = true_fractions_sim[:batch_size_actual]
+            true_fractions_real_batch = true_fractions_real[:batch_size_actual]
+            x_train_sim_gt_batch = x_train_sim_gt[:batch_size_actual]
+
+            x_train_mix = (
+                beta * x_train_real_batch[:, :x_train_sim_gt_batch.shape[1]]
+                + (1 - beta) * x_train_sim_batch[:, :x_train_sim_gt_batch.shape[1]]
+            )
+            labels_mix = labels_sim_batch
+            true_fractions_mix = beta * true_fractions_real_batch + (1 - beta) * true_fractions_sim_batch
 
             with tf.GradientTape() as tape:
-                reconstructed, kld = vae(
-                    x_train1[:, : x_train2.shape[1]], labels=labels
+                reconstructed_sim, kld = vae(
+                    x_train_sim_batch[:, :x_train_sim_gt_batch.shape[1]],
+                    labels=labels_sim_batch
                 )
-                reconstructed_r, _ = vae(
-                    x_train1[:, : x_train2.shape[1]], labels=labels
-                )
-                recon_loss = mse_loss_fn(x_train2, reconstructed)
-                # fractions_loss = mse_loss_fn(true_fractions, fractions)
-                x_train1_reconstructed = reconstructed * tf.expand_dims(
-                    true_fractions, 1
-                )
-                x_train1_reconstructed_r = reconstructed_r * tf.expand_dims(
-                    true_fractions_r, 1
+                recon_loss = mse_loss_fn(x_train_sim_gt_batch, reconstructed_sim)
+
+                reconstructed_mix, _ = vae(x_train_mix, labels=labels_mix)
+                reconstructed_real, _ = vae(
+                    x_train_real_batch[:, :x_train_sim_gt_batch.shape[1]],
+                    labels=labels_real_batch
                 )
 
-                fractions_loss = mse_loss_fn(
-                    x_train1[:, : x_train2.shape[1]] / labels.shape[1],
-                    x_train1_reconstructed,
-                )
-                fractions_loss_r = mse_loss_fn(
-                    x_train1_r[:, : x_train2.shape[1]] / labels.shape[1],
-                    x_train1_reconstructed_r,
-                )
-                # kld = sum(vae.losses)
-                loss = (
-                    recon_loss
-                    + 0.01 * kld
-                    + 0.1 * (fractions_loss + fractions_loss_r) / 2
-                )
+                recon_mix_weighted = reconstructed_mix * tf.expand_dims(true_fractions_mix, 1)
+                recon_real_weighted = reconstructed_real * tf.expand_dims(true_fractions_real_batch, 1)
+                recon_sim_weighted = reconstructed_sim * tf.expand_dims(true_fractions_sim_batch, 1)
+                expected_mix = beta * recon_real_weighted + (1 - beta) * recon_sim_weighted
+
+                consistency_loss = mse_loss_fn(recon_mix_weighted, expected_mix)
+
+                loss = recon_loss + beta_vae * kld + lambda_2 * consistency_loss
+
                 total_loss_kl += kld
                 total_loss_recon += recon_loss
                 total_loss += loss
@@ -391,12 +359,13 @@ def run_dissect_expr(config):
                 optimizer.apply_gradients(zip(grads, vae.trainable_weights))
 
             del tape
-    i += 1
-    pbar.set_description("Epoch: %d| loss %f " % (epoch, total_loss.numpy()))
+
+        i += 1
+        pbar.set_description("Epoch: %d| loss %f " % (epoch, total_loss.numpy()))
 
     est, _ = vae(
-        X_real_input[:, : x_train2.shape[1]],
-        labels=X_real_input[:, X_sim_gt.shape[1] :],
+        X_real_input[:, :X_sim_gt.shape[1]],
+        labels=X_real_input[:, X_sim_gt.shape[1]:],
     )
     est = est * max_val
 
@@ -430,7 +399,7 @@ def run_dissect_expr(config):
 
     real_data.obs["sample"] = real_data.obs.index.tolist()
     for layer in real_data.layers:
-        if layer==list(real_data.layers.keys())[0]:
+        if layer == list(real_data.layers.keys())[0]:
             adata_est = real_data.copy()
             adata_est.X = adata_est.layers[layer]
             adata_est.obs["cell_type"] = layer
@@ -441,7 +410,7 @@ def run_dissect_expr(config):
             tmp.obs["cell_type"] = layer
             del tmp.layers
             adata_est = adata_est.concatenate(tmp)
-    adata_est.obs = adata_est.obs[[col for col in adata_est.obs.columns if col!="batch"]]
+    adata_est.obs = adata_est.obs[[col for col in adata_est.obs.columns if col != "batch"]]
 
     adata_est.layers["scaled_counts"] = sc.pp.scale(adata_est, copy=True, max_value=10).X
     savename = os.path.join(config["experiment_folder"], "est_expression.h5ad")
