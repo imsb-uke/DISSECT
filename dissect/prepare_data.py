@@ -133,10 +133,10 @@ def dataset(config):
     else:
         X_sim = simulate(X_sc, config["deconv_params"]["simulation_params"])
     # Normalization
-    if config["deconv_params"]["normalize_simulated"] == "cpm":
-        sc.pp.normalize_total(X_sim, target_sum=1e6)
     if "parse" in str(type(X_sim.X)):
         X_sim.X = np.array(X_sim.X.todense())
+    if config["deconv_params"]["normalize_simulated"] == "cpm":
+        sc.pp.normalize_total(X_sim, target_sum=1e6)
     elif not config["deconv_params"]["normalize_simulated"]:
         pass
     else:

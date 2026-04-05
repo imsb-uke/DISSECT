@@ -3,7 +3,7 @@ config = {
 
     "simulation_params": { 
         "scdata": "/home/user/experiment/data.h5ad",  # Path to sc/snRNA-seq data, should be anndata
-        "save_expr": False,
+        "save_expr": True,
         "n_samples": None,  # Number of samples to generate. Default (None): 1000 times the number of celltypes,
         "type": "bulk", # bulk or st to simulate bulk and spatial transcriptomics respectively
         "celltype_col": "celltype",  # Name of the column corresponding to cell-type labels in adata.obs
@@ -58,7 +58,8 @@ config = {
             "batch_size": 64,  # best - 64 # batch size
             "dropout": None,  # If you would like dropoouts in the model, write a list with same number of elements as n_hidden_layers above corresponding to each dropout layer.
             # An example is [0.2,0.2,0,0.3,0.1,0.2]. Default (None) is no dropout
-            "n_steps_expr": 5000
+            "n_steps_expr": 5000,
+            "expr_scaling": "p99"
             },  # Parameters to use to build network.
         "alpha_range": [
             0.1,
