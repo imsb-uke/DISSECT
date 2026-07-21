@@ -43,6 +43,13 @@ def run_dissect_frac(config):
     n_features = X_sim_np.shape[1]
     n_celltypes = len(celltypes)
 
+    # Resolve the activation ONCE, before the ensemble loop, so the
+    # string sentinel isn't destroyed after the first iteration.
+    if config["deconv_params"]["network_params"]["hidden_activation"] == "relu6":
+        config["deconv_params"]["network_params"]["hidden_activation"] = tf.nn.relu6
+    else:
+        config["deconv_params"]["network_params"]["hidden_activation"] = tf.nn.relu
+
     j = 0
     for seed in range(len(config["deconv_params"]["models"])):
         print("Starting training model {}".format(j))
@@ -60,10 +67,6 @@ def run_dissect_frac(config):
         )
         dataset_iter = iter(dataset)
 
-        if config["deconv_params"]["network_params"]["hidden_activation"] == "relu6":
-            config["deconv_params"]["network_params"]["hidden_activation"] = tf.nn.relu6
-        else:
-            config["deconv_params"]["network_params"]["hidden_activation"] = tf.nn.relu
         model = network(
             config["deconv_params"]["network_params"], n_celltypes, n_features, training=True
         )
