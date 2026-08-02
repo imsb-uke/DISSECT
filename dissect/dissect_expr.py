@@ -21,13 +21,6 @@ from tensorflow.keras import layers
 import tensorflow as tf
 
 import numpy as np
-
-from keras.layers import Input, Dense, Lambda
-from keras.layers.merge import concatenate as concat
-from keras.models import Model
-from keras import backend as K
-from keras.datasets import mnist
-from tensorflow.keras.utils import to_categorical
 import scipy
 
 warnings.filterwarnings("ignore")
