@@ -99,18 +99,36 @@ def model_paths(config):
 
 def dissect_train(config, data=None):
     """
-    Train the DISSECT ensemble and export each model to model_{j} inside the
-    experiment folder.
+    Train the DISSECT ensemble and export each model to model_{j}
+    inside the experiment folder.
 
-    One model is trained per entry of config["deconv_params"]["models"], each
-    seeded by its index. Every step draws a batch of simulated and real
-    profiles, mixes them with a random alpha, normalises the batches, and
-    optimises a regression loss that is joined by a weighted consistency loss
-    after 2000 steps. Loads the datasets itself when data is not supplied.
+    If use_consistency=True:
+        Normal DISSECT training is performed.
 
-    Writes a models.txt manifest listing the exported paths and returns the
-    same list.
+        Steps 0-1999:
+            regression loss only
+
+        Steps 2000-3999:
+            regression loss + 15 * consistency loss
+
+        Steps >= 4000:
+            regression loss + 10 * consistency loss
+
+        For signature matrices / spatial_sparse:
+            weights 0.15 and 0.10 are used instead.
+
+    If use_consistency=False:
+        A supervised baseline is trained exclusively on simulated
+        samples and their known proportions.
+
+        No real samples are used during training.
+        No alpha values are generated.
+        No online mixtures are generated.
+        No real or mixed samples are normalized.
+        No real/mixed forward passes are performed.
+        No consistency loss is calculated.
     """
+
     _quiet_tf()
 
     if data is None:
@@ -124,197 +142,409 @@ def dissect_train(config, data=None):
     n_features = data["n_features"]
     n_celltypes = data["n_celltypes"]
 
-    # Resolve the activation ONCE, before the ensemble loop, so the
-    # string sentinel isn't destroyed after the first iteration.
+    network_params = config["deconv_params"]["network_params"]
+
+    use_consistency = network_params.get(
+        "use_consistency",
+        True
+    )
+
+    # Resolve activation once before the ensemble loop
     _resolve_hidden_activation(config)
+
+    print(
+        "Consistency regularization: {}".format(
+            "ON"
+            if use_consistency
+            else "OFF (supervised baseline)"
+        )
+    )
+
+    if use_consistency:
+        print(
+            "Training mode: DISSECT simulation-real "
+            "consistency training"
+        )
+    else:
+        print(
+            "Training mode: supervised simulated-data baseline"
+        )
 
     saved_models = []
 
     j = 0
-    for seed in range(len(config["deconv_params"]["models"])):
-        print("Starting training model {}".format(j))
-        # reproducibility(seed)
 
-        minval, maxval = config["deconv_params"]["alpha_range"]
-        # Create dataset iterators
+    # =========================================================
+    # Train ensemble members
+    # =========================================================
+    for seed in range(
+        len(config["deconv_params"]["models"])
+    ):
+
+        print(
+            "Starting training model {}".format(j)
+        )
+
+        # -----------------------------------------------------
+        # Reproducibility
+        # -----------------------------------------------------
         np.random.seed(seed)
         tf.random.set_seed(seed)
-        dataset = tf.data.Dataset.from_tensor_slices((X_sim_np, y_sim_np, X_real_np))
+
+        # -----------------------------------------------------
+        # Dataset iterator
+        #
+        # Baseline does not even include X_real in the
+        # TensorFlow training dataset.
+        # -----------------------------------------------------
+        if use_consistency:
+
+            dataset = tf.data.Dataset.from_tensor_slices(
+                (
+                    X_sim_np,
+                    y_sim_np,
+                    X_real_np
+                )
+            )
+
+        else:
+
+            dataset = tf.data.Dataset.from_tensor_slices(
+                (
+                    X_sim_np,
+                    y_sim_np
+                )
+            )
+
         dataset = (
-            dataset.shuffle(1000)
+            dataset
+            .shuffle(1000)
             .repeat()
-            .batch(batch_size=config["deconv_params"]["network_params"]["batch_size"])
+            .batch(
+                batch_size=network_params[
+                    "batch_size"
+                ]
+            )
         )
+
         dataset_iter = iter(dataset)
 
+        # -----------------------------------------------------
+        # Model
+        # -----------------------------------------------------
         model = network(
-            config["deconv_params"]["network_params"], n_celltypes, n_features, training=True
+            network_params,
+            n_celltypes,
+            n_features,
+            training=True
         )
 
-        # Start training
-        pbar = tqdm(range(config["deconv_params"]["network_params"]["n_steps"]))
-        step = 0
+        # -----------------------------------------------------
+        # Optimizer
+        # -----------------------------------------------------
         optimizer = tf.keras.optimizers.Adam(
-            learning_rate=config["deconv_params"]["network_params"]["lr"]
+            learning_rate=network_params["lr"]
         )
-        rs, rmses, cccs, avgrs, avgrmses, avgcccs = [], [], [], [], [], []
+
+        # -----------------------------------------------------
+        # Training setup
+        # -----------------------------------------------------
+        pbar = tqdm(
+            range(
+                network_params["n_steps"]
+            )
+        )
+
+        step = 0
+
+        rs = []
+        rmses = []
+        cccs = []
+        avgrs = []
+        avgrmses = []
+        avgcccs = []
+
+        # Alpha is only relevant when consistency is enabled
+        if use_consistency:
+
+            minval, maxval = (
+                config["deconv_params"]["alpha_range"]
+            )
+
+        # =====================================================
+        # Training loop
+        # =====================================================
         for i in pbar:
-            X_sim, y_sim, X_real = dataset_iter.get_next()
 
-            # seed = np.random.uniform()
-            alpha = tf.random.uniform(
-                [1], minval=minval, maxval=maxval, dtype=tf.dtypes.float32, name="alpha"
-            )
-            if config["deconv_params"]["mix"] == "rrm":
-                X_real_s = tf.random.shuffle(X_real)
-                X_mix = alpha * X_real + (1 - alpha) * X_real_s
-            else:
-                X_mix = alpha * X_real + (1 - alpha) * X_sim
+            # =================================================
+            # NORMAL DISSECT
+            # =================================================
+            if use_consistency:
 
-            X_real, X_sim, X_mix = (
-                normalize_per_batch(X_real, n_features),
-                normalize_per_batch(X_sim, n_features),
-                normalize_per_batch(X_mix, n_features),
-            )
-            if config["deconv_params"]["mix"] == "rrm":
-                X_real_s = normalize_per_batch(X_real_s, n_features)
-            reg_losses, cons_losses, total_losses = [], [], []
-
-            if i == 0:
-                y_hat_sim, y_hat_real, y_hat_mix = (
-                    model(X_sim),
-                    model(X_real),
-                    model(X_mix),
+                X_sim, y_sim, X_real = (
+                    dataset_iter.get_next()
                 )
-                # print("Network architecture -")
-                # print(model.summary())
 
-            with tf.GradientTape() as tape:
-                if config["deconv_params"]["mix"] == "rrm":
-                    y_hat_sim, y_hat_real, y_hat_mix, y_hat_real_s = (
-                        model(X_sim, training=True),
-                        model(X_real, training=True),
-                        model(X_mix, training=True),
-                        model(X_real_s, training=True),
+                # ---------------------------------------------
+                # Generate alpha
+                # ---------------------------------------------
+                alpha = tf.random.uniform(
+                    [1],
+                    minval=minval,
+                    maxval=maxval,
+                    dtype=tf.dtypes.float32,
+                    name="alpha"
+                )
+
+                # ---------------------------------------------
+                # Generate online mixture
+                # ---------------------------------------------
+                if (
+                    config["deconv_params"]["mix"]
+                    == "rrm"
+                ):
+
+                    X_real_s = tf.random.shuffle(
+                        X_real
                     )
-                    reg_loss, cons_loss = loss(
-                        config["deconv_params"]["network_params"]["loss"],
-                        y_hat_sim,
-                        y_sim,
-                        y_hat_real,
-                        y_hat_mix,
-                        alpha,
-                        y_hat_real_s,
+
+                    X_mix = (
+                        alpha * X_real
+                        + (1 - alpha) * X_real_s
                     )
+
                 else:
-                    y_hat_sim, y_hat_real, y_hat_mix = (
-                        model(X_sim, training=True),
-                        model(X_real, training=True),
-                        model(X_mix, training=True),
+
+                    X_mix = (
+                        alpha * X_real
+                        + (1 - alpha) * X_sim
                     )
+
+                # ---------------------------------------------
+                # Normalize simulated, real and mixed data
+                # ---------------------------------------------
+                X_real = normalize_per_batch(
+                    X_real,
+                    n_features
+                )
+
+                X_sim = normalize_per_batch(
+                    X_sim,
+                    n_features
+                )
+
+                X_mix = normalize_per_batch(
+                    X_mix,
+                    n_features
+                )
+
+                if (
+                    config["deconv_params"]["mix"]
+                    == "rrm"
+                ):
+
+                    X_real_s = normalize_per_batch(
+                        X_real_s,
+                        n_features
+                    )
+
+                # ---------------------------------------------
+                # Forward passes + loss
+                # ---------------------------------------------
+                with tf.GradientTape() as tape:
+
+                    y_hat_sim = model(
+                        X_sim,
+                        training=True
+                    )
+
+                    y_hat_real = model(
+                        X_real,
+                        training=True
+                    )
+
+                    y_hat_mix = model(
+                        X_mix,
+                        training=True
+                    )
+
+                    if (
+                        config["deconv_params"]["mix"]
+                        == "rrm"
+                    ):
+
+                        y_hat_real_s = model(
+                            X_real_s,
+                            training=True
+                        )
+
+                        reg_loss, cons_loss = loss(
+                            network_params["loss"],
+                            y_hat_sim,
+                            y_sim,
+                            y_hat_real,
+                            y_hat_mix,
+                            alpha,
+                            y_hat_real_s,
+                            use_consistency=True
+                        )
+
+                    else:
+
+                        reg_loss, cons_loss = loss(
+                            network_params["loss"],
+                            y_hat_sim,
+                            y_sim,
+                            y_hat_real,
+                            y_hat_mix,
+                            alpha,
+                            use_consistency=True
+                        )
+
+                    # -----------------------------------------
+                    # Original DISSECT consistency schedule
+                    # -----------------------------------------
+                    if step < 2000:
+
+                        loss_ = reg_loss
+
+                    elif step < 4000:
+
+                        lambda_ = 15
+
+                        if (
+                            config["deconv_params"][
+                                "sig_matrix"
+                            ]
+                            or
+                            config["deconv_params"][
+                                "test_dataset_type"
+                            ]
+                            == "spatial_sparse"
+                        ):
+
+                            lambda_ = 0.15
+
+                        loss_ = (
+                            reg_loss
+                            + lambda_ * cons_loss
+                        )
+
+                    else:
+
+                        lambda_ = 10
+
+                        if (
+                            config["deconv_params"][
+                                "sig_matrix"
+                            ]
+                            or
+                            config["deconv_params"][
+                                "test_dataset_type"
+                            ]
+                            == "spatial_sparse"
+                        ):
+
+                            lambda_ = 0.10
+
+                        loss_ = (
+                            reg_loss
+                            + lambda_ * cons_loss
+                        )
+
+            # =================================================
+            # SUPERVISED BASELINE
+            # =================================================
+            else:
+
+                # ---------------------------------------------
+                # Only simulated samples and labels
+                # ---------------------------------------------
+                X_sim, y_sim = (
+                    dataset_iter.get_next()
+                )
+
+                # ---------------------------------------------
+                # Only normalize simulated data
+                # ---------------------------------------------
+                X_sim = normalize_per_batch(
+                    X_sim,
+                    n_features
+                )
+
+                # ---------------------------------------------
+                # One forward pass only
+                # ---------------------------------------------
+                with tf.GradientTape() as tape:
+
+                    y_hat_sim = model(
+                        X_sim,
+                        training=True
+                    )
+
+                    # Same loss() function as normal DISSECT,
+                    # but consistency is disabled.
                     reg_loss, cons_loss = loss(
-                        config["deconv_params"]["network_params"]["loss"],
+                        network_params["loss"],
                         y_hat_sim,
                         y_sim,
-                        y_hat_real,
-                        y_hat_mix,
-                        alpha,
+                        use_consistency=False
                     )
-                if step < 2000:
+
                     loss_ = reg_loss
-                elif step in range(2000, 4000):
-                    lambda_ = 15
-                    if (
-                        config["deconv_params"]["sig_matrix"]
-                        or config["deconv_params"]["test_dataset_type"] == "spatial_sparse"
-                    ):
-                        lambda_ = 0.15
-                    loss_ = reg_loss + lambda_ * cons_loss
-                elif step >= 4000:
-                    lambda_ = 10
-                    if (
-                        config["deconv_params"]["sig_matrix"]
-                        or config["deconv_params"]["test_dataset_type"] == "spatial_sparse"
-                    ):
-                        lambda_ = 0.10
-                    loss_ = reg_loss + lambda_ * cons_loss
-            grads = tape.gradient(loss_, model.trainable_weights)
-            optimizer.apply_gradients(zip(grads, model.trainable_weights))
+
+            # =================================================
+            # Backpropagation
+            # =================================================
+            grads = tape.gradient(
+                loss_,
+                model.trainable_weights
+            )
+
+            optimizer.apply_gradients(
+                zip(
+                    grads,
+                    model.trainable_weights
+                )
+            )
 
             del tape
 
-            total_losses.append(loss_)
-            reg_losses.append(reg_loss)
-            cons_losses.append(cons_loss)
-            evaluate = False
-            if evaluate:
-                yt, yt_ = np.array(gt), model.predict(
-                    normalize_per_batch(X_real_test, n_features)
-                )
-                yt, yt_ = gt, model.predict(
-                    normalize_per_batch(X_real_test, n_features)
-                )
-                yt_ = pd.DataFrame(yt_, columns=celltypes)
-                celltypes_select = [col for col in gt.columns if col != "Unknown"]
-                yt, yt_ = np.array(gt[celltypes_select]), np.array(
-                    yt_[celltypes_select]
-                )
-                s = (yt.shape[0] * yt.shape[1],)
-                y, y_ = yt.reshape(s), yt_.reshape(s)
-
-                r = np.corrcoef(y, y_)[0, 1]
-                rmse = mean_squared_error(y, y_, squared=False)
-                ccc = ccc_fn(y, y_)
-
-                rs.append(r)
-                rmses.append(rmse)
-                cccs.append(ccc)
-
-                avgr, avgrmse, avgccc = 0, 0, 0
-                for k in range(yt.shape[1]):
-                    if celltypes[k] != "Unknown":
-                        avgr += np.corrcoef(yt[:, k], yt_[:, k])[0, 1]
-                        avgrmse += mean_squared_error(
-                            yt[:, k], yt_[:, k], squared=False
-                        )
-                        avgccc += ccc_fn(yt[:, k], yt_[:, k])
-                avgr = avgr / (yt.shape[1] - 1)
-                avgrmse = avgrmse / (yt.shape[1] - 1)
-                avgccc = avgccc / (yt.shape[1] - 1)
-
-                avgrs.append(avgr)
-                avgrmses.append(avgrmse)
-                avgcccs.append(avgccc)
-
-                pbar.set_description(
-                    "step: %d| loss: %.4f | r: %.4f | Avg r: %.4f"
-                    % (step, loss_, r, avgr)
-                )
             step += 1
+
             pbar.set_description(
                 "step: %d| loss: %.4f"
-                % (step, loss_)
+                % (
+                    step,
+                    float(loss_.numpy())
+                )
             )
 
-        model_path = os.path.join(config["experiment_folder"], "model_{}".format(j))
+        # =====================================================
+        # Save ensemble member
+        # =====================================================
+        model_path = os.path.join(
+            config["experiment_folder"],
+            "model_{}".format(j)
+        )
+
         model.save(model_path)
+
         saved_models.append(model_path)
 
-        # metrics = ["r", "rmse", "ccc", "avgr", "avgrmse", "avgccc"]
-        # metrics_vals = [rs, rmses, cccs, avgrs, avgrmses, avgcccs]
-        # df_metrics = pd.DataFrame(columns=metrics,
-        #                         index=range(config["deconv_params"]["network_params"]["n_steps"]))
-        # for m in range(len(metrics)):
-        #    df_metrics[metrics[m]] = metrics_vals[m]
-        # df_metrics.to_csv(os.path.join(config["experiment_folder"], "per_step_metrics_{}.txt".format(j)),
-        #                sep="\t")
-
-        # print("Estimated proportions are saved at {}.".format(results_path))
-        if i < 5:
-            print("Starting training model {}".format(i))
         j += 1
 
-    with open(os.path.join(config["experiment_folder"], "models.txt"), "w") as fh:
+    # =========================================================
+    # Save list of trained models
+    # =========================================================
+    with open(
+        os.path.join(
+            config["experiment_folder"],
+            "models.txt"
+        ),
+        "w"
+    ) as fh:
+
         for p in saved_models:
             fh.write(p + "\n")
 
