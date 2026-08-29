@@ -56,25 +56,150 @@ def network2(config, n_celltypes, n_features, training=False):
     return model
 
 
-def loss(loss_fn, y_hat_sim, y_sim, y_hat_real, y_hat_mix, alpha, y_hat_real_s=None):
+def loss(
+    loss_fn,
+    y_hat_sim,
+    y_sim,
+    y_hat_real=None,
+    y_hat_mix=None,
+    alpha=None,
+    y_hat_real_s=None,
+    use_consistency=True,
+):
     """
-    Returns regression and consistency losses
-    """
-    if y_hat_real_s is not None:
-        y_mix = alpha * y_hat_real + (1 - alpha) * y_hat_real_s
-    else:
-        y_mix = alpha * y_hat_real + (1 - alpha) * y_hat_sim
+    Returns regression and consistency losses.
 
+    Parameters
+    ----------
+    loss_fn : str
+        One of "kldivergence", "l2", or "l1".
+
+    y_hat_sim : tf.Tensor
+        Predictions for simulated samples.
+
+    y_sim : tf.Tensor
+        Ground-truth proportions for simulated samples.
+
+    y_hat_real : tf.Tensor or None
+        Predictions for real samples. Only required when
+        use_consistency=True.
+
+    y_hat_mix : tf.Tensor or None
+        Predictions for mixed samples. Only required when
+        use_consistency=True.
+
+    alpha : tf.Tensor or None
+        Mixing coefficient. Only required when
+        use_consistency=True.
+
+    y_hat_real_s : tf.Tensor or None
+        Predictions for shuffled real samples when using RRM.
+
+    use_consistency : bool
+        If False, calculate only the supervised regression loss.
+        If True, calculate both regression and consistency losses.
+    """
+
+    # ---------------------------------------------------------
+    # Supervised regression loss
+    # ---------------------------------------------------------
     if loss_fn == "kldivergence":
+
         KL = tf.keras.losses.KLDivergence()
-        reg_loss = KL(y_sim, y_hat_sim)
-        # cons_loss = KL(y_mix, y_hat_mix)
-        cons_loss = tf.reduce_mean(tf.math.square(y_mix - y_hat_mix))
+
+        reg_loss = KL(
+            y_sim,
+            y_hat_sim
+        )
+
     elif loss_fn == "l2":
-        reg_loss = tf.reduce_mean(tf.math.square(y_sim - y_hat_sim))
-        cons_loss = tf.reduce_mean(tf.math.square(y_mix - y_hat_mix))
+
+        reg_loss = tf.reduce_mean(
+            tf.math.square(
+                y_sim - y_hat_sim
+            )
+        )
+
     elif loss_fn == "l1":
-        reg_loss = tf.reduce_mean(tf.math.abs(y_sim - y_hat_sim))
-        cons_loss = tf.reduce_mean(tf.math.abs(y_mix - y_hat_mix))
+
+        reg_loss = tf.reduce_mean(
+            tf.math.abs(
+                y_sim - y_hat_sim
+            )
+        )
+
+    else:
+
+        raise ValueError(
+            "loss_fn must be one of: "
+            "'kldivergence', 'l2', 'l1'"
+        )
+
+    # ---------------------------------------------------------
+    # Supervised-only baseline
+    # ---------------------------------------------------------
+    if not use_consistency:
+
+        cons_loss = tf.constant(
+            0.0,
+            dtype=reg_loss.dtype
+        )
+
+        return reg_loss, cons_loss
+
+
+    if y_hat_real is None:
+        raise ValueError(
+            "y_hat_real is required when use_consistency=True"
+        )
+
+    if y_hat_mix is None:
+        raise ValueError(
+            "y_hat_mix is required when use_consistency=True"
+        )
+
+    if alpha is None:
+        raise ValueError(
+            "alpha is required when use_consistency=True"
+        )
+
+    # ---------------------------------------------------------
+    # Construct prediction-space mixup target
+    # ---------------------------------------------------------
+    if y_hat_real_s is not None:
+
+        # Real-real mixture
+        y_mix = (
+            alpha * y_hat_real
+            + (1 - alpha) * y_hat_real_s
+        )
+
+    else:
+
+        # Simulation-real mixture
+        y_mix = (
+            alpha * y_hat_real
+            + (1 - alpha) * y_hat_sim
+        )
+
+    # ---------------------------------------------------------
+    # Consistency loss
+    # ---------------------------------------------------------
+    if loss_fn == "l1":
+
+        cons_loss = tf.reduce_mean(
+            tf.math.abs(
+                y_mix - y_hat_mix
+            )
+        )
+
+    else:
+
+
+        cons_loss = tf.reduce_mean(
+            tf.math.square(
+                y_mix - y_hat_mix
+            )
+        )
 
     return reg_loss, cons_loss
