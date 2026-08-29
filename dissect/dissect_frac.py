@@ -11,9 +11,15 @@ from dissect.utils.utils_fn import normalize_per_batch, reproducibility, ccc_fn
 from sklearn.metrics import mean_squared_error
 import logging
 
-def run_dissect_frac(config):
+
+def _quiet_tf():
+    """Silence TensorFlow's C++ and Python logging."""
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
     logging.getLogger('tensorflow').setLevel(logging.FATAL)
+
+
+def _dataset_path(config):
+    """Return the prepared datasets folder, exiting if it does not exist."""
     dataset_path = os.path.join(config["experiment_folder"], "datasets")
     if not os.path.exists(dataset_path):
         sys.exit(
@@ -21,6 +27,18 @@ def run_dissect_frac(config):
                 dataset_path
             )
         )
+    return dataset_path
+
+
+def load_datasets(config):
+    """
+    Read the prepared arrays and labels from the experiment's datasets folder.
+
+    Returns a dict with the simulated training data (X_sim, y_sim), the real
+    training and test expression matrices, the sample names, the cell types,
+    and the derived feature and cell-type counts.
+    """
+    dataset_path = _dataset_path(config)
 
     print("Loading prepared datasets...")
     X_real_np = np.load(os.path.join(dataset_path, "X_real_train.npy"))
@@ -43,12 +61,74 @@ def run_dissect_frac(config):
     n_features = X_sim_np.shape[1]
     n_celltypes = len(celltypes)
 
+    return {
+        "X_real_np": X_real_np,
+        "X_sim_np": X_sim_np,
+        "y_sim_np": y_sim_np,
+        "X_real_test": X_real_test,
+        "sample_names": sample_names,
+        "celltypes": celltypes,
+        "n_features": n_features,
+        "n_celltypes": n_celltypes,
+    }
+
+
+def _resolve_hidden_activation(config):
+    """
+    Replace the hidden_activation string in the config with the TensorFlow
+    function it names: "relu6" becomes tf.nn.relu6, anything else tf.nn.relu.
+
+    Does nothing once the entry is already a function, so the resolved value
+    survives repeated calls on the same config object.
+    """
+    params = config["deconv_params"]["network_params"]
+    if isinstance(params["hidden_activation"], str):
+        if params["hidden_activation"] == "relu6":
+            params["hidden_activation"] = tf.nn.relu6
+        else:
+            params["hidden_activation"] = tf.nn.relu
+
+
+def model_paths(config):
+    """Return the export paths of the ensemble models, in ensemble order."""
+    return [
+        os.path.join(config["experiment_folder"], "model_{}".format(j))
+        for j in range(len(config["deconv_params"]["models"]))
+    ]
+
+
+def dissect_train(config, data=None):
+    """
+    Train the DISSECT ensemble and export each model to model_{j} inside the
+    experiment folder.
+
+    One model is trained per entry of config["deconv_params"]["models"], each
+    seeded by its index. Every step draws a batch of simulated and real
+    profiles, mixes them with a random alpha, normalises the batches, and
+    optimises a regression loss that is joined by a weighted consistency loss
+    after 2000 steps. Loads the datasets itself when data is not supplied.
+
+    Writes a models.txt manifest listing the exported paths and returns the
+    same list.
+    """
+    _quiet_tf()
+
+    if data is None:
+        data = load_datasets(config)
+
+    X_real_np = data["X_real_np"]
+    X_sim_np = data["X_sim_np"]
+    y_sim_np = data["y_sim_np"]
+    X_real_test = data["X_real_test"]
+    celltypes = data["celltypes"]
+    n_features = data["n_features"]
+    n_celltypes = data["n_celltypes"]
+
     # Resolve the activation ONCE, before the ensemble loop, so the
     # string sentinel isn't destroyed after the first iteration.
-    if config["deconv_params"]["network_params"]["hidden_activation"] == "relu6":
-        config["deconv_params"]["network_params"]["hidden_activation"] = tf.nn.relu6
-    else:
-        config["deconv_params"]["network_params"]["hidden_activation"] = tf.nn.relu
+    _resolve_hidden_activation(config)
+
+    saved_models = []
 
     j = 0
     for seed in range(len(config["deconv_params"]["models"])):
@@ -218,7 +298,53 @@ def run_dissect_frac(config):
 
         model_path = os.path.join(config["experiment_folder"], "model_{}".format(j))
         model.save(model_path)
+        saved_models.append(model_path)
 
+        # metrics = ["r", "rmse", "ccc", "avgr", "avgrmse", "avgccc"]
+        # metrics_vals = [rs, rmses, cccs, avgrs, avgrmses, avgcccs]
+        # df_metrics = pd.DataFrame(columns=metrics,
+        #                         index=range(config["deconv_params"]["network_params"]["n_steps"]))
+        # for m in range(len(metrics)):
+        #    df_metrics[metrics[m]] = metrics_vals[m]
+        # df_metrics.to_csv(os.path.join(config["experiment_folder"], "per_step_metrics_{}.txt".format(j)),
+        #                sep="\t")
+
+        # print("Estimated proportions are saved at {}.".format(results_path))
+        if i < 5:
+            print("Starting training model {}".format(i))
+        j += 1
+
+    with open(os.path.join(config["experiment_folder"], "models.txt"), "w") as fh:
+        for p in saved_models:
+            fh.write(p + "\n")
+
+    return saved_models
+
+
+def dissect_predict(config, data=None):
+    """
+    Deconvolve the real test data with the exported ensemble.
+
+    Each model_{j} is loaded from the experiment folder and applied to the
+    normalised test matrix, giving per-model cell-type fractions and the
+    corresponding pre-softmax scores. Both are written as
+    dissect_fractions_{j}.txt and dissect_scores_{j}.txt, then averaged across
+    the ensemble into dissect_fractions.txt and dissect_scores.txt.
+
+    Loads the datasets itself when data is not supplied, so it can be run on
+    its own after dissect_train.
+    """
+    _quiet_tf()
+
+    if data is None:
+        data = load_datasets(config)
+
+    X_real_test = data["X_real_test"]
+    sample_names = data["sample_names"]
+    celltypes = data["celltypes"]
+    n_features = data["n_features"]
+
+    for j, model_path in enumerate(model_paths(config)):
         model_p = tf.keras.models.load_model(model_path)
 
         # print("Running deconvolution")
@@ -238,7 +364,7 @@ def run_dissect_frac(config):
         new_last_layer = tf.keras.layers.Dense.from_config(last_layer_config)
         new_last_layer.build(input_shape=last_layer.input_shape)
         new_last_layer.set_weights([weights, biases])
-        pre_softmax_model = tf.keras.models.Model(inputs=model.input, outputs=new_last_layer(model.layers[-2].output))
+        pre_softmax_model = tf.keras.models.Model(inputs=model_p.input, outputs=new_last_layer(model_p.layers[-2].output))
         scores = pre_softmax_model.predict(normalize_per_batch(X_real_test, n_features))
 
         df_y_hat_scores = pd.DataFrame(scores, columns=celltypes)
@@ -248,24 +374,9 @@ def run_dissect_frac(config):
         )
         df_y_hat_scores.to_csv(scores_path, sep="\t")
 
-
-        # metrics = ["r", "rmse", "ccc", "avgr", "avgrmse", "avgccc"]
-        # metrics_vals = [rs, rmses, cccs, avgrs, avgrmses, avgcccs]
-        # df_metrics = pd.DataFrame(columns=metrics,
-        #                         index=range(config["deconv_params"]["network_params"]["n_steps"]))
-        # for m in range(len(metrics)):
-        #    df_metrics[metrics[m]] = metrics_vals[m]
-        # df_metrics.to_csv(os.path.join(config["experiment_folder"], "per_step_metrics_{}.txt".format(j)),
-        #                sep="\t")
-
-        # print("Estimated proportions are saved at {}.".format(results_path))
-        if i < 5:
-            print("Starting training model {}".format(i))
-        j += 1
-
     # print("ensembling")
     experiment_path = os.path.join(config["experiment_folder"])
-    
+
     i = 0
     for i in range(len(config["deconv_params"]["models"])):
         df_curr = pd.read_table(
@@ -300,6 +411,23 @@ def run_dissect_frac(config):
     savepath = os.path.join(config["experiment_folder"], "dissect_scores.txt")
     print("Scores are saved to {}".format(savepath))
     df_ens.to_csv(savepath, sep="\t")
+
+
+def run_dissect_frac(config):
+    """
+    Run the full DISSECT fraction workflow.
+
+    Loads the prepared datasets once, trains and exports the ensemble, then
+    deconvolves the test data and writes the per-model and ensembled fraction
+    and score tables.
+    """
+    _quiet_tf()
+
+    data = load_datasets(config)
+
+    dissect_train(config, data=data)
+    dissect_predict(config, data=data)
+
 
 if __name__ == "__main__":
     from configs.main_config import config
